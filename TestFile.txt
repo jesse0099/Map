@@ -1,0 +1,7 @@
+Cartago
+San Jose
+Heredia
+Alajuela
+edges
+a,b,1,true
+c,a,3,false
