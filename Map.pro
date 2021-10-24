@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     grafo.cpp \
+    graph.cpp \
     graphwidget.cpp \
     main.cpp \
     vertex.cpp
 
 HEADERS += \
     grafo.h \
+    graph.h \
     graphwidget.h \
     vertex.h
 

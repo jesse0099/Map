@@ -130,9 +130,13 @@ class Graph {
 
 private:
     size_t vertexes;
+
     vector<Vertex> vertexes_list;
+
     Hash_Graph hash_graph;
+
     vector<vector<int>>  graph;
+
     void init_graph() {
         graph.resize(vertexes);/*Rows - Origin*/
         for (size_t i = 0; i < vertexes; i++) {
@@ -144,6 +148,7 @@ private:
         }
 
     }
+
     void init_map_graph() {
         size_t i = 0;
         for (auto x : vertexes_list) {
@@ -152,6 +157,7 @@ private:
             i++;
         }
     }
+
     vector<vector<int>> init_sd_matrix(int vertex_idx) {
         int org_idx = vertex_idx;//Graph's Matrix row index
 
@@ -166,6 +172,7 @@ private:
 
         return info_table;
     }
+
     unordered_map<string, wt_pair> init_sd_hash(string vertex_tag) {
         unordered_map<string, wt_pair> returned;
         for (size_t i = 0; i < vertexes_list.size(); i++)
@@ -173,6 +180,7 @@ private:
             : returned[vertexes_list[i].get_tag()] = make_pair(0, "NAN");
         return returned;
     }
+
     unordered_map<string, vector<vector<string>>> init_possible_paths() {
         unordered_map<string, vector<vector<string>>> tmp;
         vector<vector<string>> tmp_vect;
@@ -491,24 +499,31 @@ public:
     Hash_Graph get_hash_graph() {
         return hash_graph;
     }
+
     vector<vector<int>> get_graph() {
         return graph;
     }
+
     vector<Vertex> get_vertexes_list() {
         return vertexes_list;
     }
+
     size_t get_vertexes() {
         return vertexes;
     }
+
     void set_graph(vector<vector<int>> p_graph) {
         graph = p_graph;
     }
+
     void set_vertexes_list(vector<Vertex> p_vertexes_list) {
         vertexes_list = p_vertexes_list;
     }
+
     void set_vertexes(int p_vertexes) {
         vertexes = p_vertexes;
     }
+
     void set_hash_graph(Hash_Graph p_hash_graph) {
         hash_graph = p_hash_graph;
     }
