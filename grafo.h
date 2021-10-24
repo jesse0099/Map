@@ -73,21 +73,24 @@ public:
         return path;
     }
 
-
     Vertex() {}
     Vertex(string p_tag) {
         tag = p_tag;
     }
 
     string get_tag() {
+
         return tag;
     }
+
     vector<vector<int>> get_shortest_paths() {
         return shortest_paths;
     }
+
     unordered_map<string, wt_pair> get_hash_shortest_paths() {
         return hash_shortest_paths;
     }
+
     unordered_map<string, vector<vector<wt_pair>>> get_possible_paths() {
         return possible_paths;
     }
@@ -100,6 +103,7 @@ public:
     void set_tag(string n_tag) {
         tag = n_tag;
     }
+
     void set_shortest_path(vector<vector<int>> p_nd_shortest_path) {
         shortest_paths = p_nd_shortest_path;
     }
