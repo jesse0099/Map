@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
     centraWidget->setLayout(mainLayout);
 
     w->setCentralWidget(centraWidget);
-    w->setFixedWidth(800);
-    w->setFixedHeight(600);
+    w->setMinimumWidth(1000);
+    w->setMinimumHeight(600);
     w->show();
     return a.exec();
 

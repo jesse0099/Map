@@ -1,20 +1,30 @@
-#include "graphwidget.h"
 #include <QGraphicsView>
+#include <QWheelEvent>
+#include "graphwidget.h"
+#include <node.h>
 
 GraphWidget::GraphWidget(QWidget *parent)
     : QGraphicsView(parent)
 {
     QGraphicsScene *scene = new QGraphicsScene(this);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
-    scene->setSceneRect(-200, -200, 600, 400);
+    scene->setSceneRect(0, 0, 2000, 800);
     setScene(scene);
     setCacheMode(CacheBackground);
     setViewportUpdateMode(BoundingRectViewportUpdate);
     setRenderHint(QPainter::Antialiasing);
     setTransformationAnchor(AnchorUnderMouse);
     scale(qreal(0.8), qreal(0.8));
-    setMinimumSize(800, 600);
+    setMinimumSize(400, 600);
     setWindowTitle(tr("Elastic Nodes"));
+    centerNode = new Node(this);
+    auto node2 = new Node(this);
+
+    scene->addItem(centerNode);
+    scene->addItem(node2);
+
+    centerNode->setPos(140,100);
+    node2->setPos(220,100);
 }
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
@@ -46,3 +56,28 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->setPen(Qt::black);
 
 }
+
+void GraphWidget::wheelEvent(QWheelEvent *event)
+{
+    scaleView(pow(2., -event->angleDelta().y() / 240.0));
+}
+
+void GraphWidget::scaleView(qreal scaleFactor)
+{
+    qreal factor = transform().scale(scaleFactor, scaleFactor).mapRect(QRectF(0, 0, 1, 1)).width();
+    if (factor < 0.07 || factor > 100)
+        return;
+
+    scale(scaleFactor, scaleFactor);
+}
+
+void GraphWidget::zoomIn()
+{
+    scaleView(qreal(1.2));
+}
+
+void GraphWidget::zoomOut()
+{
+    scaleView(1 / qreal(1.2));
+}
+

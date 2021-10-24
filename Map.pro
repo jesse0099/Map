@@ -11,11 +11,13 @@ CONFIG += c++11
 SOURCES += \
     grafo.cpp \
     graphwidget.cpp \
-    main.cpp
+    main.cpp \
+    node.cpp
 
 HEADERS += \
     grafo.h \
-    graphwidget.h
+    graphwidget.h \
+    node.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
