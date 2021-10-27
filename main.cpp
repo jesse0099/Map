@@ -1,5 +1,10 @@
-#include "grafo.h"
 #include "graphwidget.h"
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <unordered_map>
+#include <queue>
 #include <fstream>
 #include <sstream>
 #include <QFile>
@@ -20,6 +25,7 @@
 #include <QFile>
 #include <QDataStream>
 
+using namespace std;
 
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
