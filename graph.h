@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <queue>
 
-
 #ifndef GRAPH_H
 #define GRAPH_H
 using namespace std;
@@ -17,8 +16,6 @@ typedef pair<int, string> wt_pair;
 typedef unordered_map <string, vector<wt_pair>> Hash_Graph;
 typedef priority_queue <int_pair, vector<int_pair>, greater<int_pair>> min_heap_pair_queue;
 typedef priority_queue <wt_pair, vector<wt_pair>, greater<wt_pair>> min_heap_wt_pair_queue;
-
-
 
 class Graph{
 

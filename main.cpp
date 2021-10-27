@@ -18,8 +18,15 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDataStream>
-#include "graph.h"
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <unordered_map>
+#include <queue>
 
+
+using namespace std;
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
 QMainWindow *w;
@@ -30,15 +37,11 @@ QVBoxLayout* mainLayout;
 GraphWidget* graphWidget;
 
 
-
-
 void on_actionSeleccionar_Mapa_triggered();
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
-
 
     txtMapInfo = new QTextEdit;
     mainLayout = new QVBoxLayout;
