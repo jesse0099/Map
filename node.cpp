@@ -8,10 +8,14 @@
 #include <QTextItem>
 #include <QGraphicsTextItem>
 
-Node::Node(GraphWidget *graphWidget)
+Node::Node(GraphWidget *graphWidget, Vertex* p_vertex)
     : graph(graphWidget)
 {
+
+    //setFlag(ItemIsSelectable);
+    vertex = p_vertex;
     setFlag(ItemIsFocusable);
+    setFlag(ItemIsSelectable);
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
     setCacheMode(DeviceCoordinateCache);

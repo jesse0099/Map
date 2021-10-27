@@ -2,11 +2,12 @@
 #include <QVector>
 
 class GraphWidget;
+class Vertex;
 
 class Node : public QGraphicsItem
 {
 public:
-    Node(GraphWidget *graphWidget);
+    Node(GraphWidget *graphWidget, Vertex* p_vertex);
 
     /*void addEdge(Edge *edge);
     QVector<Edge *> edges() const;*/
@@ -31,4 +32,5 @@ private:
     /*QVector<Edge *> edgeList;*/
     QPointF newPos;
     GraphWidget *graph;
+    Vertex *vertex;
 };

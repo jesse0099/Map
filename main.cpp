@@ -1,4 +1,5 @@
 #include "graphwidget.h"
+#include "vertex.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -48,6 +49,11 @@ void on_actionSeleccionar_Mapa_triggered();
 
 int main(int argc, char *argv[])
 {
+    //Carga de vertices desde archivo de texto
+    vector<Vertex> read_vertexes;
+
+
+
     QApplication a(argc, argv);
 
     txtMapInfo = new QTextEdit;
@@ -103,7 +109,6 @@ Edge::~Edge() {}
 
 #pragma endregion
 
-vector<QString> vertexes;
 vector<Edge> edges;
 
 #pragma endregion
@@ -114,11 +119,6 @@ QString convToQString(string value) {
     return QString::fromStdString(value);
 }
 
-void clearAll() {
-
-    vertexes.clear();
-    edges.clear();
-}
 
 Edge buildEdge(QString value) {
 
@@ -157,8 +157,36 @@ Edge buildEdge(QString value) {
 
 #pragma endregion
 
+Vertex build_vertex(QString data){
+    Vertex returned;
+    string strValues = data.toStdString();
+    stringstream ssValues(strValues), coordx_stream, coordy_stream;
+    int coordx, coordy;
+
+    /*Valores a guardar*/
+    vector<string> vertexValues;
+    /*valores a tomar*/
+    string vertexValue = "";
+    while (getline(ssValues, vertexValue, ','))
+        vertexValues.push_back(vertexValue);
+    //Posicion 0 = TAG
+    //Posicion 1 = x
+    //Posicion 2 = y
+    coordx_stream = stringstream(vertexValues[1]);
+    coordy_stream = stringstream(vertexValues[2]);
+
+    coordx_stream >> coordx;
+    coordy_stream >> coordy;
+
+    returned.set_tag(vertexValues[0]);
+    returned.set_coords(make_pair(coordx,coordy));
+
+    return returned;
+}
+
 void on_actionSeleccionar_Mapa_triggered()
 {
+    vector<Vertex> vertexes;
     QString filename = QFileDialog::getOpenFileName(w, "Open File");
     QFile file(filename);
     currentFile = filename;
@@ -167,7 +195,7 @@ void on_actionSeleccionar_Mapa_triggered()
         QMessageBox::warning(w, "Warning", "Something went wrong: " + file.errorString());
     }
     else {
-        //w->setWindowTitle(file.fileName());
+
         QTextStream in (&file);
         QString final = "";
         bool edgesCap = false;
@@ -183,7 +211,8 @@ void on_actionSeleccionar_Mapa_triggered()
 
             if (!edgesCap)
             {
-                vertexes.push_back(value);
+                Vertex newVertex = build_vertex(value);
+                vertexes.push_back(newVertex);
             }
             else
             {
@@ -195,32 +224,12 @@ void on_actionSeleccionar_Mapa_triggered()
 
         }
 
-        for (QString item : vertexes)
-        {
-            final += item;
-        }
-
-        for (Edge edge : edges)
-        {
-            QString from = QString::fromStdString(edge.from);
-            QString to = QString::fromStdString(edge.to);
-            QString weight = QString::fromStdString(to_string(edge.weight));
-            QString type = "";
-            if (edge.type)
-            {
-                type = "true";
-            }
-            else
-            {
-                type = "false";
-            }
-            QString edgeFinal = from + "," + to + "," + weight + "," + type;
-            final += edgeFinal;
-        }
-
-
-
         txtMapInfo->setText(final);
         file.close();
+        //Set vertex
+        graphWidget->set_vertexes(&vertexes);
+        //Update Map
+        graphWidget->update();
+
     }
 }

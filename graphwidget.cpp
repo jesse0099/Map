@@ -2,11 +2,14 @@
 #include <QWheelEvent>
 #include "graphwidget.h"
 #include <node.h>
+#include <vertex.h>
 
-GraphWidget::GraphWidget(QWidget *parent)
+GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     : QGraphicsView(parent)
 {
-    QGraphicsScene *scene = new QGraphicsScene(this);
+    vertexes = p_vertexes;
+    nodes = NULL;
+    scene = new QGraphicsScene(this);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->setSceneRect(0, 0, 2000, 800);
     setScene(scene);
@@ -17,14 +20,12 @@ GraphWidget::GraphWidget(QWidget *parent)
     scale(qreal(0.8), qreal(0.8));
     setMinimumSize(400, 600);
     setWindowTitle(tr("Elastic Nodes"));
-    centerNode = new Node(this);
-    auto node2 = new Node(this);
 
-    scene->addItem(centerNode);
-    scene->addItem(node2);
+}
 
-    centerNode->setPos(140,100);
-    node2->setPos(220,100);
+GraphWidget::~GraphWidget(){
+    centerNode = NULL;
+    vertexes = NULL;
 }
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
@@ -81,3 +82,28 @@ void GraphWidget::zoomOut()
     scaleView(1 / qreal(1.2));
 }
 
+void GraphWidget::set_vertexes(vector<Vertex>* p_vertexes){
+    scene->clear();
+    vertexes = NULL;
+    nodes = NULL;
+    vertexes = p_vertexes;
+    nodes = new vector<Node*>();
+    for(auto x: *vertexes){
+        Node* tmp = new Node(this,&x);
+        tmp->setPos(x.get_coords().first,x.get_coords().second);
+        nodes->push_back(tmp);
+        scene->addItem(tmp);
+    }
+}
+
+vector<Vertex>* GraphWidget::get_vertexes(){
+    return vertexes;
+}
+
+vector<Node*>* GraphWidget::get_nodes(){
+    return nodes;
+}
+
+void GraphWidget::set_nodes(vector<Node*> *p_nodes){
+    nodes = p_nodes;
+}

@@ -11,19 +11,14 @@ CONFIG += c++11
 SOURCES += \
     graph.cpp \
     graphwidget.cpp \
+    node.cpp \
     main.cpp \
     vertex.cpp
 
 HEADERS += \
     graph.h \
     graphwidget.h \
-    vertex.h
-    graphwidget.cpp \
-    main.cpp \
-    node.cpp
-
-HEADERS += \
-    graphwidget.h \
+    vertex.h \
     node.h
 
 # Default rules for deployment.

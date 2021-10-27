@@ -17,6 +17,9 @@ public:
 
      Vertex();
      Vertex(string p_tag);
+     int_pair get_coords(){
+         return coords;
+     }
      vector<int> shortest_path(int end_idx);
      vector<wt_pair> hash_shortest_path(string end_vertex);
      string get_tag();
@@ -31,8 +34,12 @@ public:
      void set_possible_paths(unordered_map<string, vector<vector<wt_pair>>> p_possible_paths);
      void add_possible_path_key(string destination);
      void add_possible_path(string key, vector<wt_pair> path);
-
+     void set_coords(int_pair p_coords){
+         coords = p_coords;
+     }
 private:
+     //Coordenadas
+     int_pair coords;
      unsigned short int index;
      vector<vector<int>> shortest_paths;
      //key = Row, pair = (Weight, Pre Vertex)
