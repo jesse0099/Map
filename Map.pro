@@ -18,6 +18,13 @@ HEADERS += \
     graph.h \
     graphwidget.h \
     vertex.h
+    graphwidget.cpp \
+    main.cpp \
+    node.cpp
+
+HEADERS += \
+    graphwidget.h \
+    node.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

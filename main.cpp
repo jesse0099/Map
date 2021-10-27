@@ -1,4 +1,10 @@
 #include "graphwidget.h"
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <unordered_map>
+#include <queue>
 #include <fstream>
 #include <sstream>
 #include <QFile>
@@ -25,6 +31,7 @@
 #include <unordered_map>
 #include <queue>
 
+using namespace std;
 
 using namespace std;
 QTextEdit *txtMapInfo;
@@ -66,8 +73,8 @@ int main(int argc, char *argv[])
     centraWidget->setLayout(mainLayout);
 
     w->setCentralWidget(centraWidget);
-    w->setFixedWidth(800);
-    w->setFixedHeight(600);
+    w->setMinimumWidth(1000);
+    w->setMinimumHeight(600);
     w->show();
     return a.exec();
 
