@@ -3,6 +3,8 @@
 
 class Node;
 class Vertex;
+class Edge;
+class Edge_tmp;
 
 using namespace std;
 
@@ -23,6 +25,7 @@ public slots:
     void zoomOut();
     void set_vertexes(vector<Vertex>* p_vertexes);
     void set_nodes(vector<Node*> *p_nodes);
+    void set_edges(vector<Edge_tmp> *p_tmpedges);
 protected:
     //void keyPressEvent(QKeyEvent *event) override;
     //void timerEvent(QTimerEvent *event) override;
@@ -37,6 +40,7 @@ private:
     int timerId = 0;
     Node *centerNode;
     vector<Vertex>* vertexes;
-    vector<Node*> *nodes;
+    vector<Edge*>* edges;
+    vector<Node*>* nodes;
     QGraphicsScene *scene;
 };

@@ -3,15 +3,20 @@
 #include "graphwidget.h"
 #include <node.h>
 #include <vertex.h>
+#include <edge.h>
+#include <edge_tmp.h>
+#include <iterator>
 
 GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     : QGraphicsView(parent)
 {
     vertexes = p_vertexes;
     nodes = NULL;
+    edges = NULL;
     scene = new QGraphicsScene(this);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
-    scene->setSceneRect(0, 0, 2000, 800);
+    scene->setSceneRect(0, 0, 3000, 2000);
+    scene->focusOnTouch();
     setScene(scene);
     setCacheMode(CacheBackground);
     setViewportUpdateMode(BoundingRectViewportUpdate);
@@ -19,7 +24,6 @@ GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     setTransformationAnchor(AnchorUnderMouse);
     scale(qreal(0.8), qreal(0.8));
     setMinimumSize(400, 600);
-    setWindowTitle(tr("Elastic Nodes"));
 
 }
 
@@ -88,7 +92,7 @@ void GraphWidget::set_vertexes(vector<Vertex>* p_vertexes){
     nodes = NULL;
     vertexes = p_vertexes;
     nodes = new vector<Node*>();
-    for(auto x: *vertexes){
+    for(auto& x: *vertexes){
         Node* tmp = new Node(this,&x);
         tmp->setPos(x.get_coords().first,x.get_coords().second);
         nodes->push_back(tmp);
@@ -102,6 +106,21 @@ vector<Vertex>* GraphWidget::get_vertexes(){
 
 vector<Node*>* GraphWidget::get_nodes(){
     return nodes;
+}
+
+void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
+    edges = NULL;
+    edges = new vector<Edge*>();
+    bool bidir;
+    for(vector<Edge_tmp>::iterator i = p_edges->begin(); i< p_edges->end(); i++){
+        bidir = (*i).type;
+        auto source_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj) {return obj->get_vertex()->get_tag() == (*i).from; });
+        auto dest_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj2) {return obj2->get_vertex()->get_tag() == (*i).to; });
+        Edge* tmp = new Edge((*source_node),(*dest_node),bidir);
+        (**source_node).addEdge(tmp);
+        (*edges).push_back(tmp);
+        scene->addItem(tmp);
+    }
 }
 
 void GraphWidget::set_nodes(vector<Node*> *p_nodes){

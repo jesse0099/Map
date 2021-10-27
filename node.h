@@ -3,11 +3,16 @@
 
 class GraphWidget;
 class Vertex;
+class Edge;
 
 class Node : public QGraphicsItem
 {
 public:
     Node(GraphWidget *graphWidget, Vertex* p_vertex);
+
+    void addEdge(Edge *edge);
+    QVector<Edge *> edges() const;
+    Vertex* get_vertex() const;
 
     /*void addEdge(Edge *edge);
     QVector<Edge *> edges() const;*/
@@ -29,7 +34,7 @@ protected:
     //void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-    /*QVector<Edge *> edgeList;*/
+    QVector<Edge *> edgeList;
     QPointF newPos;
     GraphWidget *graph;
     Vertex *vertex;

@@ -1,6 +1,6 @@
 #include <node.h>
 #include <graphwidget.h>
-
+#include <edge.h>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
@@ -12,14 +12,29 @@ Node::Node(GraphWidget *graphWidget, Vertex* p_vertex)
     : graph(graphWidget)
 {
 
-    //setFlag(ItemIsSelectable);
     vertex = p_vertex;
     setFlag(ItemIsFocusable);
     setFlag(ItemIsSelectable);
-    setFlag(ItemIsMovable);
+    //setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
     setCacheMode(DeviceCoordinateCache);
     setZValue(-1);
+}
+
+void Node::addEdge(Edge *edge)
+{
+    edgeList << edge;
+    edge->adjust();
+}
+
+Vertex* Node::get_vertex() const
+{
+    return vertex;
+}
+
+QVector<Edge *> Node::edges() const
+{
+    return edgeList;
 }
 
 QRectF Node::boundingRect() const

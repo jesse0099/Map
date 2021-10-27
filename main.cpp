@@ -1,5 +1,6 @@
 #include "graphwidget.h"
 #include "vertex.h"
+#include "edge_tmp.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -34,7 +35,7 @@
 
 using namespace std;
 
-using namespace std;
+
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
 QMainWindow *w;
@@ -80,82 +81,11 @@ int main(int argc, char *argv[])
 
     w->setCentralWidget(centraWidget);
     w->setMinimumWidth(1000);
-    w->setMinimumHeight(600);
+    w->setMinimumHeight(900);
     w->show();
     return a.exec();
 
 }
-
-#pragma region UIFunVariables
-
-#pragma region Edge
-
-class Edge
-{
-public:
-    Edge();
-    ~Edge();
-    string from;
-    string to;
-    int weight;
-    bool type;
-
-private:
-
-};
-
-Edge::Edge() {}
-Edge::~Edge() {}
-
-#pragma endregion
-
-vector<Edge> edges;
-
-#pragma endregion
-
-#pragma region File Methods
-
-QString convToQString(string value) {
-    return QString::fromStdString(value);
-}
-
-
-Edge buildEdge(QString value) {
-
-    Edge newEdge;
-    /* Valores de Q string a string*/
-    std::string strValues = value.toStdString();
-    /*stringstream de los valores*/
-    std::stringstream ssValues(strValues);
-    /*Valores a guardar*/
-    std::vector<string> edgeValues;
-    /*valores a tomar*/
-    std::string edgeValue = "";
-
-
-    while (std::getline(ssValues, edgeValue, ','))
-    {
-        edgeValues.push_back(edgeValue);
-    }
-    if (edgeValues.size() > 3) {
-
-        newEdge.from = edgeValues[0];
-        newEdge.to = edgeValues[1];
-        newEdge.weight = stoi(edgeValues[2]);
-        if (edgeValues[3] == "true")
-        {
-            newEdge.type = true;
-        }
-        else {
-            newEdge.type = false;
-        }
-
-    }
-
-    return newEdge;
-}
-
-#pragma endregion
 
 Vertex build_vertex(QString data){
     Vertex returned;
@@ -187,6 +117,8 @@ Vertex build_vertex(QString data){
 void on_actionSeleccionar_Mapa_triggered()
 {
     vector<Vertex> vertexes;
+    vector<Edge_tmp> edges;
+
     QString filename = QFileDialog::getOpenFileName(w, "Open File");
     QFile file(filename);
     currentFile = filename;
@@ -217,8 +149,9 @@ void on_actionSeleccionar_Mapa_triggered()
             else
             {
                 if (value != "edges") {
-                    Edge newEdge = buildEdge(value);
-                    edges.push_back(newEdge);
+                   Edge_tmp newEdge = Edge_tmp();
+                   newEdge= newEdge.buildEdge(value);
+                   edges.push_back(newEdge);
                 }
             }
 
@@ -228,6 +161,7 @@ void on_actionSeleccionar_Mapa_triggered()
         file.close();
         //Set vertex
         graphWidget->set_vertexes(&vertexes);
+        graphWidget->set_edges(&edges);
         //Update Map
         graphWidget->update();
 
