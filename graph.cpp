@@ -8,8 +8,6 @@
 #include <queue>
 
 using namespace std;
-Vertex vertex;
-Graph graph;
 const unsigned short int INFINITE = 9999;
 const short int NV_VERTEX = -1;
 const string NV_INDEX = "No se han indicado vertices validos";

@@ -4,15 +4,21 @@
 #include <string>
 #include <unordered_map>
 #include <queue>
-#include "vertex.h"
+
 
 #ifndef GRAPH_H
 #define GRAPH_H
-
 using namespace std;
+
+class Vertex;
+
+typedef pair<int, int> int_pair;
+typedef pair<int, string> wt_pair;
 typedef unordered_map <string, vector<wt_pair>> Hash_Graph;
 typedef priority_queue <int_pair, vector<int_pair>, greater<int_pair>> min_heap_pair_queue;
 typedef priority_queue <wt_pair, vector<wt_pair>, greater<wt_pair>> min_heap_wt_pair_queue;
+
+
 
 class Graph{
 

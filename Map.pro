@@ -9,14 +9,12 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    grafo.cpp \
     graph.cpp \
     graphwidget.cpp \
     main.cpp \
     vertex.cpp
 
 HEADERS += \
-    grafo.h \
     graph.h \
     graphwidget.h \
     vertex.h

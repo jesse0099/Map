@@ -1,4 +1,3 @@
-#include "grafo.h"
 #include "graphwidget.h"
 #include <fstream>
 #include <sstream>
@@ -19,7 +18,7 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDataStream>
-
+#include "graph.h"
 
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
@@ -30,11 +29,16 @@ QString currentFile = "";
 QVBoxLayout* mainLayout;
 GraphWidget* graphWidget;
 
+
+
+
 void on_actionSeleccionar_Mapa_triggered();
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+
 
     txtMapInfo = new QTextEdit;
     mainLayout = new QVBoxLayout;
