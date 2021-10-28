@@ -52,19 +52,21 @@ QPainterPath Node::shape() const
 
 void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *)
 {
+
     painter->setPen(Qt::NoPen);
     painter->setBrush(Qt::darkGray);
     painter->drawEllipse(-7, -7, 40, 40);
 
     QRadialGradient gradient(-3, -3, 20);
-    if (option->state & QStyle::State_Sunken) {
+
+    if(this->isSelected()){
         gradient.setCenter(3, 3);
         gradient.setFocalPoint(3, 3);
         gradient.setColorAt(1, QColor(Qt::yellow).lighter(120));
         gradient.setColorAt(0, QColor(Qt::darkYellow).lighter(120));
     } else {
-        gradient.setColorAt(0, Qt::yellow);
-        gradient.setColorAt(1, Qt::darkYellow);
+        gradient.setColorAt(0, Qt::blue);
+        gradient.setColorAt(1, Qt::darkBlue);
     }
     //Node Tag
     /*Auxilioo*/
@@ -73,4 +75,17 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
     painter->setPen(QPen(Qt::black, 0));
     painter->drawEllipse(-10, -10, 40, 40);
+}
+
+void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    GraphWidget::selectecNodesCount++;
+    GraphWidget::check_node_selection(this);
+    graph->update();
+    update();
+    QGraphicsItem::mousePressEvent(event);
+}
+
+void Node::set_vertex(Vertex *p_vertex){
+    vertex = p_vertex;
 }

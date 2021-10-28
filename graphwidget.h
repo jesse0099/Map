@@ -1,5 +1,7 @@
 #include <vector>
 #include <QGraphicsView>
+#include <QTextEdit>
+
 
 class Node;
 class Vertex;
@@ -12,20 +14,32 @@ class GraphWidget : public QGraphicsView
 {
     Q_OBJECT
 
+
 public:
+    static int selectecNodesCount;
+    static Node* sourceNode;
+    static Node* destNode;
+    static QTextEdit* logger;
+
+    static void check_node_selection(Node* selectedNode);
+    static void log(string message);
+
     GraphWidget(QWidget *parent = nullptr, vector<Vertex> *p_vertexes = nullptr);
     ~GraphWidget();
+
+    void set_vertexes(vector<Vertex>* p_vertexes);
+    void set_nodes(vector<Node*> *p_nodes);
+    void set_edges(vector<Edge_tmp> *p_tmpedges);
+
+    vector<Node*>* get_nodes();
+    vector<Vertex>* get_vertexes();
     /*void itemMoved();*/
 
 public slots:
     //void shuffle();
-    vector<Node*>* get_nodes();
-    vector<Vertex>* get_vertexes();
     void zoomIn();
     void zoomOut();
-    void set_vertexes(vector<Vertex>* p_vertexes);
-    void set_nodes(vector<Node*> *p_nodes);
-    void set_edges(vector<Edge_tmp> *p_tmpedges);
+
 protected:
     //void keyPressEvent(QKeyEvent *event) override;
     //void timerEvent(QTimerEvent *event) override;
@@ -33,14 +47,13 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 #endif
     void drawBackground(QPainter *painter, const QRectF &rect) override;
-
     void scaleView(qreal scaleFactor);
 
 private:
     int timerId = 0;
-    Node *centerNode;
     vector<Vertex>* vertexes;
     vector<Edge*>* edges;
     vector<Node*>* nodes;
     QGraphicsScene *scene;
 };
+

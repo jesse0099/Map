@@ -7,12 +7,26 @@
 #include <edge_tmp.h>
 #include <iterator>
 
+
+int GraphWidget::selectecNodesCount = 0;
+Node* GraphWidget::sourceNode = NULL;
+Node* GraphWidget::destNode = NULL;
+QTextEdit* GraphWidget::logger = NULL;
+
 GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     : QGraphicsView(parent)
 {
     vertexes = p_vertexes;
+
     nodes = NULL;
     edges = NULL;
+
+    selectecNodesCount = 0;
+    sourceNode = NULL;
+    destNode = NULL;
+    logger = NULL;
+
+
     scene = new QGraphicsScene(this);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->setSceneRect(0, 0, 3000, 2000);
@@ -28,8 +42,33 @@ GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
 }
 
 GraphWidget::~GraphWidget(){
-    centerNode = NULL;
     vertexes = NULL;
+}
+
+void GraphWidget::check_node_selection(Node* selectedNode){
+    if(GraphWidget::selectecNodesCount == 1){
+         GraphWidget::sourceNode = selectedNode;
+         log("Origen: "+ sourceNode->get_vertex()->get_tag());
+    }else if(GraphWidget::selectecNodesCount == 2){
+         GraphWidget::destNode = selectedNode;
+         log("Destino: "+destNode->get_vertex()->get_tag());
+         //Operaciones
+         //Reset
+    }else{
+        sourceNode->setSelected(false);
+
+        sourceNode = destNode;
+        destNode = selectedNode;
+
+        log("Origen: "  + sourceNode->get_vertex()->get_tag());
+        log("Destino: " + destNode->get_vertex()->get_tag());
+        //Operaciones
+        //Reset
+    }
+}
+
+void GraphWidget::log(string message){
+    logger->setText(logger->toPlainText()+" "+ QString::fromStdString(message+"\n"));
 }
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
@@ -109,17 +148,24 @@ vector<Node*>* GraphWidget::get_nodes(){
 }
 
 void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
+    Edge *tmp, *tmp_bidir;
     edges = NULL;
     edges = new vector<Edge*>();
     bool bidir;
     for(vector<Edge_tmp>::iterator i = p_edges->begin(); i< p_edges->end(); i++){
         bidir = (*i).type;
+
         auto source_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj) {return obj->get_vertex()->get_tag() == (*i).from; });
         auto dest_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj2) {return obj2->get_vertex()->get_tag() == (*i).to; });
-        Edge* tmp = new Edge((*source_node),(*dest_node),bidir);
-        (**source_node).addEdge(tmp);
-        (*edges).push_back(tmp);
-        scene->addItem(tmp);
+
+        bidir ?  (tmp_bidir = new Edge((*dest_node), (*source_node),bidir), tmp = new Edge((*source_node),(*dest_node),bidir))
+            : tmp = new Edge((*source_node), (*dest_node),bidir);
+
+        bidir ? ((**source_node).addEdge(tmp), (**dest_node).addEdge(tmp_bidir)) : (**source_node).addEdge(tmp);
+
+        bidir ? ((*edges).push_back(tmp), (*edges).push_back(tmp_bidir)) : (*edges).push_back(tmp);
+
+        bidir ? (scene->addItem(tmp), scene->addItem(tmp_bidir)) : scene->addItem(tmp);
     }
 }
 

@@ -26,5 +26,5 @@ private:
     bool bidir;
     QPointF sourcePoint;
     QPointF destPoint;
-    qreal arrowSize = 10;
+    qreal arrowSize = 12;
 };

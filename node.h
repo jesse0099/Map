@@ -1,5 +1,9 @@
 #include <QGraphicsItem>
 #include <QVector>
+#include <QTextEdit>
+#include <string>
+
+using namespace std;
 
 class GraphWidget;
 class Vertex;
@@ -11,6 +15,8 @@ public:
     Node(GraphWidget *graphWidget, Vertex* p_vertex);
 
     void addEdge(Edge *edge);
+    void set_tag(string p_tag);
+    void set_vertex(Vertex* p_vertex);
     QVector<Edge *> edges() const;
     Vertex* get_vertex() const;
 
@@ -30,7 +36,8 @@ public:
 protected:
     //QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 
-    //void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void consoleLog(QTextEdit &txtMapInfo);
     //void mouseReleaseEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:

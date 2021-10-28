@@ -47,7 +47,7 @@ QRectF Edge::boundingRect() const
     if (!source || !dest)
         return QRectF();
 
-    qreal penWidth = 1;
+    qreal penWidth = 4;
     qreal extra = (penWidth + arrowSize) / 2.0;
 
     return QRectF(sourcePoint, QSizeF(destPoint.x() - sourcePoint.x(),
@@ -68,7 +68,7 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
 
     //! [5]
     // Draw the line itself
-    painter->setPen(QPen(Qt::red, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter->setPen(QPen(Qt::red, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->drawLine(line);
     //! [5]
 

@@ -35,7 +35,7 @@
 
 using namespace std;
 
-
+vector<Vertex> vertexes;
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
 QMainWindow *w;
@@ -62,6 +62,9 @@ int main(int argc, char *argv[])
     graphWidget = new GraphWidget;
     file = new QMenu;
     selectFile = new QAction;
+
+    //Seteando logger
+    graphWidget->logger = txtMapInfo;
 
     w = new QMainWindow;
     centraWidget = new QWidget;
@@ -114,9 +117,10 @@ Vertex build_vertex(QString data){
     return returned;
 }
 
+
 void on_actionSeleccionar_Mapa_triggered()
 {
-    vector<Vertex> vertexes;
+    vertexes = vector<Vertex>();
     vector<Edge_tmp> edges;
 
     QString filename = QFileDialog::getOpenFileName(w, "Open File");
