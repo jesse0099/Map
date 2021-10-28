@@ -7,6 +7,7 @@ class Node;
 class Vertex;
 class Edge;
 class Edge_tmp;
+class Graph;
 
 using namespace std;
 
@@ -30,9 +31,13 @@ public:
     void set_vertexes(vector<Vertex>* p_vertexes);
     void set_nodes(vector<Node*> *p_nodes);
     void set_edges(vector<Edge_tmp> *p_tmpedges);
+    void set_graph(Graph* p_graph);
+
 
     vector<Node*>* get_nodes();
     vector<Vertex>* get_vertexes();
+    vector<Edge*>* get_edges();
+    Graph* get_graph();
     /*void itemMoved();*/
 
 public slots:
@@ -54,6 +59,7 @@ private:
     vector<Vertex>* vertexes;
     vector<Edge*>* edges;
     vector<Node*>* nodes;
-    QGraphicsScene *scene;
+    QGraphicsScene* scene;
+    Graph* grafo;
 };
 

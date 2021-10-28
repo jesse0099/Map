@@ -34,7 +34,7 @@ void Edge::adjust()
     prepareGeometryChange();
 
     if (length > qreal(20.)) {
-        QPointF edgeOffset((line.dx() * 20) / length, (line.dy() * 20) / length);
+        QPointF edgeOffset((line.dx() * 35) / length, (line.dy() * 35) / length);
         sourcePoint = line.p1() + edgeOffset;
         destPoint = line.p2() - edgeOffset;
     } else {
@@ -64,29 +64,30 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     QLineF line(sourcePoint, destPoint);
     if (qFuzzyCompare(line.length(), qreal(0.)))
         return;
-    //! [4]
 
-    //! [5]
-    // Draw the line itself
-    painter->setPen(QPen(Qt::red, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    (*sd) == 0 ? painter->setPen(QPen(Qt::red, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin)) :
+              (*sd) == 1 ? painter->setPen(QPen(Qt::darkGreen, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin)) :
+                           painter->setPen(QPen(Qt::darkGray, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter->drawLine(line);
-    //! [5]
 
-    //! [6]
     // Draw the arrows
     double angle = std::atan2(-line.dy(), line.dx());
-
-    /*QPointF sourceArrowP1 = sourcePoint + QPointF(sin(angle + M_PI / 3) * arrowSize,
-                                                  cos(angle + M_PI / 3) * arrowSize);
-    QPointF sourceArrowP2 = sourcePoint + QPointF(sin(angle + M_PI - M_PI / 3) * arrowSize,
-                                                  cos(angle + M_PI - M_PI / 3) * arrowSize);*/
 
     QPointF destArrowP1 = destPoint + QPointF(sin(angle - M_PI / 3) * arrowSize,
                                               cos(angle - M_PI / 3) * arrowSize);
     QPointF destArrowP2 = destPoint + QPointF(sin(angle - M_PI + M_PI / 3) * arrowSize,
                                               cos(angle - M_PI + M_PI / 3) * arrowSize);
 
-    painter->setBrush(Qt::darkYellow);
-    //painter->drawPolygon(QPolygonF() << line.p1() << sourceArrowP1 << sourceArrowP2);
-    painter->drawPolygon(QPolygonF() << line.p2() << destArrowP1 << destArrowP2);
+    painter->setBrush(Qt::white);
+
+    if((*sd) != 2)
+        painter->drawPolygon(QPolygonF() << line.p2() << destArrowP1 << destArrowP2);
+}
+
+void Edge::set_sd(int *p_sd){
+    sd = p_sd;
+}
+
+int* Edge::get_sd(){
+    return sd;
 }

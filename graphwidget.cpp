@@ -2,6 +2,7 @@
 #include <QWheelEvent>
 #include "graphwidget.h"
 #include <node.h>
+#include <graph.h>
 #include <vertex.h>
 #include <edge.h>
 #include <edge_tmp.h>
@@ -18,6 +19,7 @@ GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
 {
     vertexes = p_vertexes;
 
+    grafo = NULL;
     nodes = NULL;
     edges = NULL;
 
@@ -46,24 +48,33 @@ GraphWidget::~GraphWidget(){
 }
 
 void GraphWidget::check_node_selection(Node* selectedNode){
-    if(GraphWidget::selectecNodesCount == 1){
+    if(GraphWidget::selectecNodesCount == 1){   //Cargando Origen
          GraphWidget::sourceNode = selectedNode;
          log("Origen: "+ sourceNode->get_vertex()->get_tag());
-    }else if(GraphWidget::selectecNodesCount == 2){
+    }else if(GraphWidget::selectecNodesCount == 2){ // Cargando Destino
+         if(!sourceNode->isSelected()){ // Pifia despues de seleccionar el origen
+             sourceNode = selectedNode;
+             GraphWidget::selectecNodesCount = 1;
+             log("Origen: "+ sourceNode->get_vertex()->get_tag());
+             return;
+         }
          GraphWidget::destNode = selectedNode;
          log("Destino: "+destNode->get_vertex()->get_tag());
-         //Operaciones
-         //Reset
     }else{
-        sourceNode->setSelected(false);
+        if(!sourceNode->isSelected() && !destNode->isSelected()){ // Pifia despues de seleccionar ambos nodos
+            sourceNode = selectedNode;
+            destNode = NULL;
+            GraphWidget::selectecNodesCount = 1;
+            log("Origen: "+ sourceNode->get_vertex()->get_tag());
+            return;
+        }
 
-        sourceNode = destNode;
+        destNode->setSelected(false);
         destNode = selectedNode;
 
         log("Origen: "  + sourceNode->get_vertex()->get_tag());
         log("Destino: " + destNode->get_vertex()->get_tag());
-        //Operaciones
-        //Reset
+
     }
 }
 
@@ -118,11 +129,13 @@ void GraphWidget::scaleView(qreal scaleFactor)
 void GraphWidget::zoomIn()
 {
     scaleView(qreal(1.2));
+    centerOn(0,0);
 }
 
 void GraphWidget::zoomOut()
 {
     scaleView(1 / qreal(1.2));
+    centerOn(0,0);
 }
 
 void GraphWidget::set_vertexes(vector<Vertex>* p_vertexes){
@@ -131,12 +144,15 @@ void GraphWidget::set_vertexes(vector<Vertex>* p_vertexes){
     nodes = NULL;
     vertexes = p_vertexes;
     nodes = new vector<Node*>();
+    //Carga de vertices en pantalla
     for(auto& x: *vertexes){
         Node* tmp = new Node(this,&x);
         tmp->setPos(x.get_coords().first,x.get_coords().second);
         nodes->push_back(tmp);
         scene->addItem(tmp);
     }
+    //Inicializacion del grafo
+    grafo = new Graph(*vertexes, true);
 }
 
 vector<Vertex>* GraphWidget::get_vertexes(){
@@ -166,9 +182,25 @@ void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
         bidir ? ((*edges).push_back(tmp), (*edges).push_back(tmp_bidir)) : (*edges).push_back(tmp);
 
         bidir ? (scene->addItem(tmp), scene->addItem(tmp_bidir)) : scene->addItem(tmp);
+
+        grafo->add_hash_edge((**source_node).get_vertex()->get_tag(), (**dest_node).get_vertex()->get_tag(), (*i).weight, bidir);
     }
 }
 
 void GraphWidget::set_nodes(vector<Node*> *p_nodes){
     nodes = p_nodes;
 }
+
+void GraphWidget::set_graph(Graph* p_graph){
+    grafo = p_graph;
+}
+
+Graph* GraphWidget::get_graph(){
+    return grafo;
+}
+
+vector<Edge*>* GraphWidget::get_edges(){
+    return edges;
+}
+
+

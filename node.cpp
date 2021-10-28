@@ -1,4 +1,5 @@
 #include <node.h>
+#include <vertex.h>
 #include <graphwidget.h>
 #include <edge.h>
 #include <QGraphicsScene>
@@ -18,7 +19,7 @@ Node::Node(GraphWidget *graphWidget, Vertex* p_vertex)
     //setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
     setCacheMode(DeviceCoordinateCache);
-    setZValue(-1);
+    setZValue(2);
 }
 
 void Node::addEdge(Edge *edge)
@@ -40,7 +41,7 @@ QVector<Edge *> Node::edges() const
 QRectF Node::boundingRect() const
 {
     qreal adjust = 2;
-    return QRectF( -10 - adjust, -10 - adjust, 43 + adjust, 43 + adjust);
+    return QRectF( -10 - adjust, -10 - adjust, 343 + adjust, 43 + adjust);
 }
 
 QPainterPath Node::shape() const
@@ -65,25 +66,35 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
         gradient.setColorAt(1, QColor(Qt::yellow).lighter(120));
         gradient.setColorAt(0, QColor(Qt::darkYellow).lighter(120));
     } else {
-        gradient.setColorAt(0, Qt::blue);
-        gradient.setColorAt(1, Qt::darkBlue);
+        //gradient.setColorAt(1,  QColor(Qt::white));
+        gradient.setColorAt(0,  QColor(Qt::blue).lighter(150));
     }
     //Node Tag
-    /*Auxilioo*/
+
+
 
     painter->setBrush(gradient);
-
     painter->setPen(QPen(Qt::black, 0));
     painter->drawEllipse(-10, -10, 40, 40);
+
+    //Tags
+    QFont font = painter->font();
+    font.setPixelSize(18);
+    font.setFamily("Comic Sans");
+    font.setWeight(QFont::Bold);
+    painter->setFont(font);
+
+    painter->setPen(QPen(Qt::darkRed, 3));
+    painter->drawText(boundingRect(),Qt::AlignTop,QString::fromStdString(vertex->get_tag()));
 }
 
 void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     GraphWidget::selectecNodesCount++;
-    GraphWidget::check_node_selection(this);
-    graph->update();
     update();
     QGraphicsItem::mousePressEvent(event);
+    GraphWidget::check_node_selection(this);
+    graph->update();
 }
 
 void Node::set_vertex(Vertex *p_vertex){

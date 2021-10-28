@@ -343,8 +343,7 @@ vector<int> Graph::get_current_uv_neighbors_sd(int current_idx, vector<int> neig
     return distances;
 }
 
-Graph::Graph(vector<Vertex> p_vertexes, bool init_hash_graph ){
-    init_hash_graph = false;
+Graph::Graph(vector<Vertex> p_vertexes, bool init_hash_graph){
     vertexes_list = p_vertexes;
     vertexes = vertexes_list.size();
     init_hash_graph ? init_map_graph() : init_graph();

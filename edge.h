@@ -11,7 +11,9 @@ public:
 
     Node *sourceNode() const;
     Node *destNode() const;
+    int* get_sd();
 
+    void set_sd(int* p_sd);
     void adjust();
 
     enum { Type = UserType + 2 };
@@ -27,4 +29,5 @@ private:
     QPointF sourcePoint;
     QPointF destPoint;
     qreal arrowSize = 12;
+    int* sd = new int(0);
 };
