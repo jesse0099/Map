@@ -8,6 +8,10 @@
 #include <edge_tmp.h>
 #include <iterator>
 #include <math.h>
+#include <iomanip>
+#include <sstream>
+
+using namespace std;
 
 int GraphWidget::selectecNodesCount = 0;
 Node* GraphWidget::sourceNode = NULL;
@@ -189,26 +193,29 @@ void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
 
 
 void GraphWidget::predictTime(string transport, int w){
-    int vPersona=10;
-    int vBici=15;
-    int vBus=12;
-    int vCarro=16;
-    float tFinal;
+    double vPersona=10; //Km/h
+    double vBici=15;
+    double vBus=12;
+    double vCarro=16;
     string detail="";
+    double time = 0.2f;
 
     if(transport == "Carro"){
-        float test = w/vCarro;
-        tFinal =((w/vCarro)*60);
+        time = ((w/vCarro)*60);
     }else if(transport == "Autobus"){
-        tFinal=(w/vBus)*60;
+        time =(w/vBus)*60;
     }else if(transport == "Caminando"){
-        tFinal = (w/vPersona)*60;
-    }else if(transport == "Bicicleta"){
-        tFinal= ((w/vBici)*60);
+        time = (w/vPersona)*60;
+    }else{
+        time = ((w/vBici)*60);
     }
 
+     stringstream time_stream;
+     string time_str;
+     time_stream << fixed << setprecision(2) << time;
+     time_str = time_stream.str();
 
-     detail = "El tiempo estimado de llegada es "+to_string(tFinal)+" minutos \n";
+     detail = "El tiempo estimado de llegada es "+time_str+" minutos \n";
      log(detail);
 }
 

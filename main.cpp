@@ -101,13 +101,14 @@ int main(int argc, char *argv[])
     btnCalcular->setIcon(QIcon(":/Imgs/back_arrow_14447_.ico"));
     btnCalcular->setToolTip("Ruta más Corta");
     btnCalcular->setFixedHeight(50);
-    btnCalcular->setFixedWidth(100);
+    btnCalcular->setFixedWidth(105);
 
 
     btnClear->setIcon(QIcon(":/Imgs/icons8-actualizaciones-disponibles-48.ico"));
     btnClear->setToolTip("Reiniciar Vista");
     btnClear->setFixedHeight(50);
-    btnClear->setFixedWidth(100);
+    btnClear->setFixedWidth(105);
+
 
     selectFile->setIcon(QIcon(":/Imgs/Map_1135px_1195280_42272.ico"));
     selectFile->setText("Seleccionar Archivo (txt)");
@@ -115,7 +116,8 @@ int main(int argc, char *argv[])
     file->addAction(selectFile);
 
     /*label*/
-    lblTrans->setText("Transporte");
+    lblTrans->setText("Transporte: ");
+    lblTrans->setContentsMargins(0,0,8,10);
     /*Combobox*/
     transportes->addItem(QIcon(":/Imgs/car_13260.ico"),"Carro");
     transportes->addItem(QIcon(":/Imgs/front-bus_icon-icons.com_72746.ico"),"Autobus");
@@ -123,7 +125,8 @@ int main(int argc, char *argv[])
     transportes->addItem(QIcon(":/Imgs/bicycle_bike_4531.ico"),"Bicicleta");
 
     transportes->setFixedHeight(50);
-    transportes->setFixedWidth(100);
+    transportes->setFixedWidth(105);
+
 
 
     //Signal - Slot SELECT
@@ -137,9 +140,9 @@ int main(int argc, char *argv[])
 
     buttonsLayout->setSpacing(0);
     buttonsLayout->addWidget(btnCalcular,0,Qt::AlignTop);
-    buttonsLayout->addWidget(btnClear,1,Qt::AlignTop);
-    buttonsLayout->addWidget(lblTrans,2,Qt::AlignBottom);
-    buttonsLayout->addWidget(transportes,3,Qt::AlignTop);
+    buttonsLayout->addWidget(btnClear,0,Qt::AlignTop);
+    buttonsLayout->addWidget(lblTrans,0,Qt::AlignTop);
+    buttonsLayout->addWidget(transportes,15,Qt::AlignTop);
 
     mapLayout->addWidget(graphWidget);
     mapLayout->addLayout(buttonsLayout);
@@ -273,10 +276,7 @@ void on_btCalcular_pressed(){
 
         /* Agarrar la  distancia total */
 
-        int distanciaT=0;
-        for(auto pt:path){
-            distanciaT = pt.first;
-        }
+        int distanciaT = path[0].first;
 
         vector<str_pair> edges_path;
 
@@ -317,7 +317,7 @@ void on_btCalcular_pressed(){
         }
 
         /* Mostrar el valor de la velocidad en consola */
-            if(distanciaT != NULL && distanciaT != 0){
+           if(distanciaT != 0){
              GraphWidget::predictTime(transportes->currentText().toStdString(),distanciaT);
            }
     }
