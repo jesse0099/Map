@@ -4,11 +4,12 @@
 #include <QString>
 #include <math.h>
 
-Edge::Edge(Node *sourceNode, Node *destNode, string p_tag,bool p_bidir)
+Edge::Edge(Node *sourceNode, Node *destNode, string p_tag, int p_peso,bool p_bidir)
     : source(sourceNode), dest(destNode)
 {
     tag = p_tag;
-    setToolTip(QString::fromStdString(tag));
+    peso = p_peso;
+    setToolTip(QString::fromStdString(tag+"("+to_string(peso)+")"));
     bidir = p_bidir;
     setAcceptedMouseButtons(Qt::NoButton);
     source->addEdge(this);

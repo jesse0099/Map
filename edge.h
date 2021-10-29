@@ -9,7 +9,8 @@ class Node;
 class Edge : public QGraphicsItem
 {
 public:
-    Edge(Node *sourceNode, Node *destNode, string p_tag,bool p_bidir = false);
+    int peso;
+    Edge(Node *sourceNode, Node *destNode, string p_tag,int p_peso,bool p_bidir = false);
     Edge();
 
     string get_tag();

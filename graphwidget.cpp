@@ -188,8 +188,8 @@ void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
         auto source_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj) {return obj->get_vertex()->get_tag() == (*i).from; });
         auto dest_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj2) {return obj2->get_vertex()->get_tag() == (*i).to; });
 
-        bidir ?  (tmp_bidir = new Edge((*dest_node), (*source_node),(*i).tag,bidir), tmp = new Edge((*source_node),(*dest_node),(*i).tag,bidir))
-            : tmp = new Edge((*source_node), (*dest_node),(*i).tag,bidir);
+        bidir ?  (tmp_bidir = new Edge((*dest_node), (*source_node),(*i).tag,(*i).weight,bidir), tmp = new Edge((*source_node),(*dest_node),(*i).tag,(*i).weight,bidir))
+            : tmp = new Edge((*source_node), (*dest_node),(*i).tag,(*i).weight,bidir);
 
         bidir ? ((**source_node).addEdge(tmp), (**dest_node).addEdge(tmp_bidir)) : (**source_node).addEdge(tmp);
 

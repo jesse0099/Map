@@ -58,7 +58,6 @@ QLabel* lblTrans;
 QComboBox *transportes;
 QAction *selectFile;
 QAction *calcDijsktra;
-QString currentFile = "";
 QVBoxLayout* mainLayout;
 QVBoxLayout* buttonsLayout;
 QHBoxLayout* mapLayout;
@@ -195,15 +194,38 @@ Vertex build_vertex(QString data){
     return returned;
 }
 
+void reset_selected_edges(){
+    if(graphWidget->get_edges() != NULL){
+        for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
+            int* sd = new int(0);
+            (*i)->set_sd(sd);
+            (*i)->setZValue(-1);
+            (*i)->hide();
+            (*i)->show();
+        }
+    }
+}
+
 void on_actionSeleccionar_Mapa_triggered()
 {
     try {
+        reset_selected_edges();
+
+        if(GraphWidget::sourceNode != NULL && GraphWidget::destNode != NULL){
+            GraphWidget::sourceNode->setSelected(false);
+            GraphWidget::destNode->setSelected(false);
+            GraphWidget::sourceNode = NULL;
+            GraphWidget::destNode = NULL;
+            GraphWidget::selectecNodesCount = 0 ;
+        }
+
         vertexes = vector<Vertex>();
         edges = vector<Edge_tmp>();
+
         //bug
         QString filename = QFileDialog::getOpenFileName(w, "Open File");
         QFile file(filename);
-        currentFile = filename;
+
 
         if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
             QMessageBox::warning(w, "Warning", "Something went wrong: " + file.errorString());
@@ -247,11 +269,6 @@ void on_actionSeleccionar_Mapa_triggered()
             //Update Map
             graphWidget->update();
 
-            //Reset Selected nodes
-            GraphWidget::sourceNode = NULL;
-            GraphWidget::destNode = NULL;
-            GraphWidget::selectecNodesCount =0;
-
         }
     }  catch (exception &e) {
         string exception = (e.what());
@@ -260,24 +277,14 @@ void on_actionSeleccionar_Mapa_triggered()
 
 }
 
-void reset_selected_edges(){
-    if(graphWidget->get_edges() != NULL){
-        for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
-            int* sd = new int(0);
-            (*i)->set_sd(sd);
-            (*i)->setZValue(-1);
-            (*i)->hide();
-            (*i)->show();
-        }
-    }
-}
-
 void on_btCalcular_pressed(){
     if(GraphWidget::sourceNode != NULL && GraphWidget::destNode != NULL){
         //Reset visual de las aristas
         reset_selected_edges();
 
         int distanciaT;
+        int edge_counter = 0;
+        string literal_path ="Camino más corto: -> ";
         string org_vertex = (*GraphWidget::sourceNode).get_vertex()->get_tag();
         string dest_vertex = (*GraphWidget::destNode).get_vertex()->get_tag();
         vector<str_pair> edges_path;
@@ -311,6 +318,8 @@ void on_btCalcular_pressed(){
             edges_path.push_back(make_pair(path[j].second,path[j+1].second));
         }
 
+
+
         for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
             int* sd;
             for(auto& x: edges_path){
@@ -321,6 +330,38 @@ void on_btCalcular_pressed(){
                     (*i)->setZValue(1);
                     (*i)->hide();
                     (*i)->show();
+                    string from, to, coord;
+
+                    auto sinalpha = atan2(((*i)->sourceNode()->pos().y() - (*i)->destNode()->pos().y()), ((*i)->destNode()->pos().x() - (*i)->sourceNode()->pos().x())) * (180.0 / M_PI);
+                    from = (*i)->sourceNode()->get_vertex()->get_tag();
+                    to = (*i)->destNode()->get_vertex()->get_tag();
+
+                    //Entre 1 y 179, pasando por 90 NORTE
+                    if(sinalpha > 0 && sinalpha < 180 ){
+                        if(sinalpha == 90)
+                            coord = "Norte";
+                        if(sinalpha < 90)
+                            coord = "Noreste";
+                        if(sinalpha > 90)
+                            coord = "Noroeste";
+
+                    }else if(sinalpha < 0){
+                        if(sinalpha == -90)
+                            coord = "Sur";
+                         if(sinalpha > -90 )
+                             coord = "Sureste";
+                         if(sinalpha < -90)
+                             coord = "Suroeste";
+                    }else{
+                        if(sinalpha == 0)
+                            coord = "Este";
+                        else
+                            coord = "Oeste";
+                    }
+
+                    edge_counter == edges_path.size() ? literal_path += " "+from + " "+to_string((*i)->peso)+" km "+ coord +" hacia " + to + " " : literal_path += " "+from + " "+to_string((*i)->peso)+" km "+ coord + " hacia " + to + ", " ;
+
+                    edge_counter++;
                 }
             }
 
@@ -335,7 +376,7 @@ void on_btCalcular_pressed(){
 
             //Arista perteneciente al camino mas corto
             if((*(*i)->get_sd()) == 1){
-                // auto sinalpha = atan2(((*i)->sourceNode()->pos().y() - (*i)->destNode()->pos().y()), ((*i)->destNode()->pos().x() - (*i)->sourceNode()->pos().x())) * (180.0 / M_PI);
+
                 for(auto edgs : (*i)->destNode()->edges()){
                     if(edgs->destNode()->get_vertex()->get_tag() == (*i)->sourceNode()->get_vertex()->get_tag())
                          edgs->hide();
@@ -362,7 +403,9 @@ void on_btCalcular_pressed(){
         /* Mostrar el valor de la velocidad en consola */
         if(distanciaT != 0){
              GraphWidget::predictTime(transportes->currentText().toStdString(),distanciaT);
-           }
+        }
+
+        txtMapInfo->setText(QString::fromStdString(txtMapInfo->toPlainText().toStdString() + literal_path));
     }
 }
 
