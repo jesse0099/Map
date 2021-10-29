@@ -24,6 +24,7 @@ public:
 
     static void check_node_selection(Node* selectedNode);
     static void log(string message);
+    static void predictTime(string transport, int w);
 
     GraphWidget(QWidget *parent = nullptr, vector<Vertex> *p_vertexes = nullptr);
     ~GraphWidget();
@@ -39,6 +40,8 @@ public:
     vector<Edge*>* get_edges();
     Graph* get_graph();
     /*void itemMoved();*/
+
+
 
 public slots:
     //void shuffle();

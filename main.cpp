@@ -38,6 +38,8 @@
 #include <unordered_map>
 #include <queue>
 #include <iterator>
+#include "qlabel.h"
+#include <QComboBox>
 
 using namespace std;
 
@@ -51,6 +53,8 @@ QMainWindow *w;
 QMenu *file;
 QPushButton* btnCalcular;
 QPushButton* btnClear;
+QLabel* lblTrans;
+QComboBox *transportes;
 QAction *selectFile;
 QAction *calcDijsktra;
 QString currentFile = "";
@@ -69,13 +73,15 @@ int main(int argc, char *argv[])
     //Carga de vertices desde archivo de texto
     vector<Vertex> read_vertexes;
 
-
-
     QApplication a(argc, argv);
 
     btnClear = new QPushButton;
     btnCalcular = new QPushButton;
     txtMapInfo = new QTextEdit;
+    /*Label y combo transportes*/
+    transportes = new QComboBox;
+    lblTrans = new QLabel;
+    /*----------------------*/
     mapLayout = new QHBoxLayout;
     mainLayout = new QVBoxLayout;
     buttonsLayout = new QVBoxLayout;
@@ -95,18 +101,30 @@ int main(int argc, char *argv[])
     btnCalcular->setIcon(QIcon(":/Imgs/back_arrow_14447_.ico"));
     btnCalcular->setToolTip("Ruta más Corta");
     btnCalcular->setFixedHeight(50);
-    btnCalcular->setFixedWidth(70);
+    btnCalcular->setFixedWidth(100);
 
 
     btnClear->setIcon(QIcon(":/Imgs/icons8-actualizaciones-disponibles-48.ico"));
     btnClear->setToolTip("Reiniciar Vista");
     btnClear->setFixedHeight(50);
-    btnClear->setFixedWidth(70);
+    btnClear->setFixedWidth(100);
 
     selectFile->setIcon(QIcon(":/Imgs/Map_1135px_1195280_42272.ico"));
     selectFile->setText("Seleccionar Archivo (txt)");
     file = w->menuBar()->addMenu("Mapas");
     file->addAction(selectFile);
+
+    /*label*/
+    lblTrans->setText("Transporte");
+    /*Combobox*/
+    transportes->addItem(QIcon(":/Imgs/car_13260.ico"),"Carro");
+    transportes->addItem(QIcon(":/Imgs/front-bus_icon-icons.com_72746.ico"),"Autobus");
+    transportes->addItem(QIcon(":/Imgs/pedestrianwalking_89238.ico"),"Caminando");
+    transportes->addItem(QIcon(":/Imgs/bicycle_bike_4531.ico"),"Bicicleta");
+
+    transportes->setFixedHeight(50);
+    transportes->setFixedWidth(100);
+
 
     //Signal - Slot SELECT
     QObject::connect(selectFile, &QAction::triggered, file, on_actionSeleccionar_Mapa_triggered);
@@ -118,9 +136,10 @@ int main(int argc, char *argv[])
     QObject::connect(btnClear,&QPushButton::clicked, w, on_btnClear_pressed);
 
     buttonsLayout->setSpacing(0);
-
     buttonsLayout->addWidget(btnCalcular,0,Qt::AlignTop);
     buttonsLayout->addWidget(btnClear,1,Qt::AlignTop);
+    buttonsLayout->addWidget(lblTrans,2,Qt::AlignBottom);
+    buttonsLayout->addWidget(transportes,3,Qt::AlignTop);
 
     mapLayout->addWidget(graphWidget);
     mapLayout->addLayout(buttonsLayout);
@@ -251,6 +270,14 @@ void on_btCalcular_pressed(){
 
 
         vector<wt_pair> path = (*local).hash_shortest_path(org_vertex, dest_vertex);
+
+        /* Agarrar la  distancia total */
+
+        int distanciaT=0;
+        for(auto pt:path){
+            distanciaT = pt.first;
+        }
+
         vector<str_pair> edges_path;
 
         for(unsigned int j = 1; j < (path.size()-1); j++){
@@ -289,7 +316,10 @@ void on_btCalcular_pressed(){
             }
         }
 
-
+        /* Mostrar el valor de la velocidad en consola */
+            if(distanciaT != NULL && distanciaT != 0){
+             GraphWidget::predictTime(transportes->currentText().toStdString(),distanciaT);
+           }
     }
 }
 

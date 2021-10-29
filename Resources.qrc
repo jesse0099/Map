@@ -3,7 +3,11 @@
         <file>Map_1135px_1195280_42272.ico</file>
         <file>back_arrow_14447.ico</file>
         <file>back_arrow_14447_.ico</file>
+        <file>bicycle_bike_4531.ico</file>
+        <file>car_13260.ico</file>
+        <file>front-bus_icon-icons.com_72746.ico</file>
         <file>icons8-actualizaciones-disponibles-48.ico</file>
+        <file>pedestrianwalking_89238.ico</file>
     </qresource>
     <qresource prefix="/Maps">
         <file>TestFile.txt</file>

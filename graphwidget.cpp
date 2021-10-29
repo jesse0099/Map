@@ -7,7 +7,7 @@
 #include <edge.h>
 #include <edge_tmp.h>
 #include <iterator>
-
+#include <math.h>
 
 int GraphWidget::selectecNodesCount = 0;
 Node* GraphWidget::sourceNode = NULL;
@@ -186,6 +186,32 @@ void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
         grafo->add_hash_edge((**source_node).get_vertex()->get_tag(), (**dest_node).get_vertex()->get_tag(), (*i).weight, bidir);
     }
 }
+
+
+void GraphWidget::predictTime(string transport, int w){
+    int vPersona=10;
+    int vBici=15;
+    int vBus=12;
+    int vCarro=16;
+    float tFinal;
+    string detail="";
+
+    if(transport == "Carro"){
+        float test = w/vCarro;
+        tFinal =((w/vCarro)*60);
+    }else if(transport == "Autobus"){
+        tFinal=(w/vBus)*60;
+    }else if(transport == "Caminando"){
+        tFinal = (w/vPersona)*60;
+    }else if(transport == "Bicicleta"){
+        tFinal= ((w/vBici)*60);
+    }
+
+
+     detail = "El tiempo estimado de llegada es "+to_string(tFinal)+" minutos \n";
+     log(detail);
+}
+
 
 void GraphWidget::set_nodes(vector<Node*> *p_nodes){
     nodes = p_nodes;
