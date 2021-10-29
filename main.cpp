@@ -91,8 +91,9 @@ int main(int argc, char *argv[])
     selectFile = new QAction;
     calcDijsktra = new QAction;
 
-    //Seteando logger
+    //Seteando logger y boton de calculo
     graphWidget->logger = txtMapInfo;
+    graphWidget->calc = btnCalcular;
 
     txtMapInfo->setFixedHeight(150);
 
@@ -196,67 +197,71 @@ Vertex build_vertex(QString data){
 
 void on_actionSeleccionar_Mapa_triggered()
 {
-    vertexes = vector<Vertex>();
-    edges = vector<Edge_tmp>();
+    try {
+        vertexes = vector<Vertex>();
+        edges = vector<Edge_tmp>();
+        //bug
+        QString filename = QFileDialog::getOpenFileName(w, "Open File");
+        QFile file(filename);
+        currentFile = filename;
 
-    QString filename = QFileDialog::getOpenFileName(w, "Open File");
-    QFile file(filename);
-    currentFile = filename;
+        if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
+            QMessageBox::warning(w, "Warning", "Something went wrong: " + file.errorString());
+        }
+        else {
+            QTextStream in (&file);
+            QString final = "";
+            bool edgesCap = false;
 
-    if (!file.open(QIODevice::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(w, "Warning", "Something went wrong: " + file.errorString());
-    }
-    else {
-
-        QTextStream in (&file);
-        QString final = "";
-        bool edgesCap = false;
-
-        while (!in.atEnd())
-        {
-            QString value = in.readLine();
-
-            if (value == "edges")
+            while (!in.atEnd())
             {
-                edgesCap = true;
-            }
+                QString value = in.readLine();
 
-            if (!edgesCap)
-            {
-                Vertex newVertex = build_vertex(value);
-                vertexes.push_back(newVertex);
-            }
-            else
-            {
-                if (value != "edges") {
-                   Edge_tmp newEdge = Edge_tmp();
-                   newEdge= newEdge.buildEdge(value);
-                   edges.push_back(newEdge);
+                if (value == "edges")
+                {
+                    edgesCap = true;
                 }
+
+                if (!edgesCap)
+                {
+                    Vertex newVertex = build_vertex(value);
+                    vertexes.push_back(newVertex);
+                }
+                else
+                {
+                    if (value != "edges") {
+                       Edge_tmp newEdge = Edge_tmp();
+                       newEdge= newEdge.buildEdge(value);
+                       edges.push_back(newEdge);
+                    }
+                }
+
             }
+
+            txtMapInfo->setText(final);
+            file.close();
+
+            //Set vertex
+            graphWidget->set_vertexes(&vertexes);
+            graphWidget->set_edges(&edges);
+            //Update Map
+            graphWidget->update();
+
+            //Reset Selected nodes
+            GraphWidget::sourceNode = NULL;
+            GraphWidget::destNode = NULL;
+            GraphWidget::selectecNodesCount =0;
 
         }
-
-        txtMapInfo->setText(final);
-        file.close();
-
-        //Reset Selected nodes
-        GraphWidget::sourceNode = NULL;
-        GraphWidget::destNode = NULL;
-        GraphWidget::selectecNodesCount =0;
-
-        //Set vertex
-        graphWidget->set_vertexes(&vertexes);
-        graphWidget->set_edges(&edges);
-        //Update Map
-        graphWidget->update();
-
+    }  catch (exception &e) {
+        string exception = (e.what());
+        txtMapInfo->setText(txtMapInfo->toPlainText()+QString::fromStdString(exception+"\n"));
     }
+
 }
 
 void reset_selected_edges(){
     if(graphWidget->get_edges() != NULL){
-        //Reset Selected nodes
         for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
             int* sd = new int(0);
             (*i)->set_sd(sd);
@@ -330,6 +335,7 @@ void on_btCalcular_pressed(){
 
             //Arista perteneciente al camino mas corto
             if((*(*i)->get_sd()) == 1){
+                // auto sinalpha = atan2(((*i)->sourceNode()->pos().y() - (*i)->destNode()->pos().y()), ((*i)->destNode()->pos().x() - (*i)->sourceNode()->pos().x())) * (180.0 / M_PI);
                 for(auto edgs : (*i)->destNode()->edges()){
                     if(edgs->destNode()->get_vertex()->get_tag() == (*i)->sourceNode()->get_vertex()->get_tag())
                          edgs->hide();

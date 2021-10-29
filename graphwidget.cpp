@@ -19,6 +19,7 @@ int GraphWidget::selectecNodesCount = 0;
 Node* GraphWidget::sourceNode = NULL;
 Node* GraphWidget::destNode = NULL;
 QTextEdit* GraphWidget::logger = NULL;
+QPushButton* GraphWidget::calc = NULL;
 
 GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     : QGraphicsView(parent)
@@ -33,6 +34,7 @@ GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     sourceNode = NULL;
     destNode = NULL;
     logger = NULL;
+    calc = NULL;
 
 
     scene = new QGraphicsScene(this);
@@ -66,6 +68,8 @@ void GraphWidget::check_node_selection(Node* selectedNode){
          }
          GraphWidget::destNode = selectedNode;
          log("Destino: "+destNode->get_vertex()->get_tag());
+         //Operar
+         calc->click();
     }else{
         if(!sourceNode->isSelected() && !destNode->isSelected()){ // Pifia despues de seleccionar ambos nodos
             sourceNode = selectedNode;
@@ -80,6 +84,8 @@ void GraphWidget::check_node_selection(Node* selectedNode){
 
         log("Origen: "  + sourceNode->get_vertex()->get_tag());
         log("Destino: " + destNode->get_vertex()->get_tag());
+        //Operar
+        calc->click();
 
     }
 }
@@ -182,8 +188,8 @@ void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
         auto source_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj) {return obj->get_vertex()->get_tag() == (*i).from; });
         auto dest_node = find_if(nodes->begin(), nodes->end(), [&i](Node* obj2) {return obj2->get_vertex()->get_tag() == (*i).to; });
 
-        bidir ?  (tmp_bidir = new Edge((*dest_node), (*source_node),bidir), tmp = new Edge((*source_node),(*dest_node),bidir))
-            : tmp = new Edge((*source_node), (*dest_node),bidir);
+        bidir ?  (tmp_bidir = new Edge((*dest_node), (*source_node),(*i).tag,bidir), tmp = new Edge((*source_node),(*dest_node),(*i).tag,bidir))
+            : tmp = new Edge((*source_node), (*dest_node),(*i).tag,bidir);
 
         bidir ? ((**source_node).addEdge(tmp), (**dest_node).addEdge(tmp_bidir)) : (**source_node).addEdge(tmp);
 
@@ -194,7 +200,6 @@ void GraphWidget::set_edges(vector<Edge_tmp> *p_edges){
         grafo->add_hash_edge((**source_node).get_vertex()->get_tag(), (**dest_node).get_vertex()->get_tag(), (*i).weight, bidir);
     }
 }
-
 
 void GraphWidget::predictTime(string transport, int w){
     double vPersona=10; //Km/h
@@ -222,7 +227,6 @@ void GraphWidget::predictTime(string transport, int w){
      detail = "El tiempo estimado de llegada es "+time_str+" minutos \n";
      log(detail);
 }
-
 
 void GraphWidget::set_nodes(vector<Node*> *p_nodes){
     nodes = p_nodes;

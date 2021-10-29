@@ -82,10 +82,13 @@ void Node::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
     font.setPixelSize(18);
     font.setFamily("Comic Sans");
     font.setWeight(QFont::Bold);
+
+
     painter->setFont(font);
 
     painter->setPen(QPen(Qt::darkRed, 3));
     painter->drawText(boundingRect(),Qt::AlignTop,QString::fromStdString(vertex->get_tag()));
+
 }
 
 void Node::mousePressEvent(QGraphicsSceneMouseEvent *event)

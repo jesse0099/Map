@@ -9,6 +9,7 @@ public:
     Edge_tmp();
     ~Edge_tmp();
     string from;
+    string tag;
     string to;
     int weight;
     bool type;

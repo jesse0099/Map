@@ -1,10 +1,14 @@
 #include "edge.h"
 #include "node.h"
 #include <QPainter>
+#include <QString>
+#include <math.h>
 
-Edge::Edge(Node *sourceNode, Node *destNode, bool p_bidir)
+Edge::Edge(Node *sourceNode, Node *destNode, string p_tag,bool p_bidir)
     : source(sourceNode), dest(destNode)
 {
+    tag = p_tag;
+    setToolTip(QString::fromStdString(tag));
     bidir = p_bidir;
     setAcceptedMouseButtons(Qt::NoButton);
     source->addEdge(this);
@@ -68,20 +72,35 @@ void Edge::paint(QPainter *painter, const QStyleOptionGraphicsItem *, QWidget *)
     (*sd) == 0 ? painter->setPen(QPen(Qt::red, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin)) :
               (*sd) == 1 ? painter->setPen(QPen(Qt::darkGreen, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin)) :
                            painter->setPen(QPen(Qt::darkGray, 4, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+
     painter->drawLine(line);
 
     // Draw the arrows
     double angle = std::atan2(-line.dy(), line.dx());
+
 
     QPointF destArrowP1 = destPoint + QPointF(sin(angle - M_PI / 3) * arrowSize,
                                               cos(angle - M_PI / 3) * arrowSize);
     QPointF destArrowP2 = destPoint + QPointF(sin(angle - M_PI + M_PI / 3) * arrowSize,
                                               cos(angle - M_PI + M_PI / 3) * arrowSize);
 
-    painter->setBrush(Qt::white);
-
-    if((*sd) != 2)
+    if((*sd) != 2){
+        painter->setBrush(Qt::white);
         painter->drawPolygon(QPolygonF() << line.p2() << destArrowP1 << destArrowP2);
+
+        //Tags
+        QFont font = painter->font();
+        font.setPixelSize(16);
+        font.setFamily("Comic Sans");
+        font.setWeight(QFont::Bold);
+
+
+        painter->setFont(font);
+
+        painter->setPen(QPen(QColor(Qt::darkGray).darker(190), 4));
+        painter->drawText(boundingRect(),Qt::AlignCenter,QString::fromStdString(tag));
+    }
+
 }
 
 void Edge::set_sd(int *p_sd){
@@ -90,4 +109,12 @@ void Edge::set_sd(int *p_sd){
 
 int* Edge::get_sd(){
     return sd;
+}
+
+string Edge::get_tag(){
+    return tag;
+}
+
+void Edge::set_tag(string p_tag){
+    tag = p_tag;
 }

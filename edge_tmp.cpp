@@ -25,11 +25,13 @@ Edge_tmp Edge_tmp::buildEdge(QString value) {
     {
         edgeValues.push_back(edgeValue);
     }
-    if (edgeValues.size() > 3) {
+    if (edgeValues.size() > 4) {
 
         newEdge.from = edgeValues[0];
         newEdge.to = edgeValues[1];
         newEdge.weight = stoi(edgeValues[2]);
+        newEdge.tag = edgeValues[4];
+
         if (edgeValues[3] == "true")
         {
             newEdge.type = true;

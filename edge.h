@@ -1,4 +1,7 @@
 #include <QGraphicsItem>
+#include <string>
+
+using namespace std;
 
 class Node;
 
@@ -6,13 +9,15 @@ class Node;
 class Edge : public QGraphicsItem
 {
 public:
-    Edge(Node *sourceNode, Node *destNode, bool p_bidir = false);
+    Edge(Node *sourceNode, Node *destNode, string p_tag,bool p_bidir = false);
     Edge();
 
+    string get_tag();
     Node *sourceNode() const;
     Node *destNode() const;
     int* get_sd();
 
+    void set_tag(string p_tag);
     void set_sd(int* p_sd);
     void adjust();
 
@@ -30,4 +35,5 @@ private:
     QPointF destPoint;
     qreal arrowSize = 12;
     int* sd = new int(0);
+    string tag = "";
 };
