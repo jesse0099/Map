@@ -8,7 +8,6 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-#include <unordered_map>
 #include <queue>
 #include <fstream>
 #include <sstream>
@@ -41,9 +40,11 @@
 #include "qlabel.h"
 #include <QComboBox>
 
+
 using namespace std;
 
 typedef pair<string, string> str_pair;
+typedef pair<int, string> w_pair;
 
 vector<Vertex> vertexes;
 vector<Edge_tmp> edges;
@@ -93,10 +94,14 @@ int main(int argc, char *argv[])
     //Seteando logger
     graphWidget->logger = txtMapInfo;
 
+    txtMapInfo->setFixedHeight(150);
+
+
     w = new QMainWindow;
     centraWidget = new QWidget;
 
     graphWidget->centerOn(0,0);
+
 
     btnCalcular->setIcon(QIcon(":/Imgs/back_arrow_14447_.ico"));
     btnCalcular->setToolTip("Ruta más Corta");
@@ -266,24 +271,40 @@ void on_btCalcular_pressed(){
     if(GraphWidget::sourceNode != NULL && GraphWidget::destNode != NULL){
         //Reset visual de las aristas
         reset_selected_edges();
+
+        int distanciaT;
         string org_vertex = (*GraphWidget::sourceNode).get_vertex()->get_tag();
         string dest_vertex = (*GraphWidget::destNode).get_vertex()->get_tag();
-
+        vector<str_pair> edges_path;
+        vector<str_pair> edges_possible_paths;
+        vector<wt_pair> path;
         Graph* local = graphWidget->get_graph();
 
+        //Calculo de camino mas corto
+        path = (*local).hash_shortest_path(org_vertex, dest_vertex);
 
-        vector<wt_pair> path = (*local).hash_shortest_path(org_vertex, dest_vertex);
+        //Calculo de posibles caminos
+        (*local).get_all_paths(org_vertex,dest_vertex);
+
+        //Posibles caminos desde el vertice origen
+        auto possible_paths = (*local).get_vertexes_list()[(*local).vertex_index(org_vertex)].get_possible_paths();
+
+        //Caminos posibles (Pares de llaves)
+        for(vector<vector<pair<int,string>>>::iterator x = possible_paths.at(dest_vertex).begin() ;x < possible_paths.at(dest_vertex).end(); x++){
+            for(vector<pair<int,string>>::iterator i = x->begin(); i < x->end()-1; i++){
+                if((*i).second != "" && (*(i+1)).second != "")
+                    edges_possible_paths.push_back(make_pair((*i).second,(*(i+1)).second));
+            }
+        }
 
         /* Agarrar la  distancia total */
 
-        int distanciaT = path[0].first;
+        distanciaT = path[0].first;
 
-        vector<str_pair> edges_path;
-
+        //Pares de Llaves para  Camino Mas corto
         for(unsigned int j = 1; j < (path.size()-1); j++){
             edges_path.push_back(make_pair(path[j].second,path[j+1].second));
         }
-
 
         for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
             int* sd;
@@ -302,6 +323,7 @@ void on_btCalcular_pressed(){
             if((*(*i)->get_sd()) == 0){
                 sd = new int(2);
                 (*i)->set_sd(sd);
+                (*i)->setZValue(-1);
                 (*i)->hide();
                 (*i)->show();
             }
@@ -316,8 +338,23 @@ void on_btCalcular_pressed(){
             }
         }
 
+        //Posible camino
+        for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
+            for(auto& x: edges_possible_paths){
+                int* sd;
+                if(x.first == (*i)->sourceNode()->get_vertex()->get_tag() &&
+                        x.second == (*i)->destNode()->get_vertex()->get_tag() && (*(*i)->get_sd()) != 1){
+                    sd = new int(0);
+                    (*i)->setZValue(1);
+                    (*i)->set_sd(sd);
+                    (*i)->hide();
+                    (*i)->show();
+                }
+            }
+        }
+
         /* Mostrar el valor de la velocidad en consola */
-           if(distanciaT != 0){
+        if(distanciaT != 0){
              GraphWidget::predictTime(transportes->currentText().toStdString(),distanciaT);
            }
     }

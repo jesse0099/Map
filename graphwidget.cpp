@@ -10,6 +10,8 @@
 #include <math.h>
 #include <iomanip>
 #include <sstream>
+#include <QScrollBar>
+
 
 using namespace std;
 
@@ -84,6 +86,8 @@ void GraphWidget::check_node_selection(Node* selectedNode){
 
 void GraphWidget::log(string message){
     logger->setText(logger->toPlainText()+" "+ QString::fromStdString(message+"\n"));
+    QScrollBar* vscroll = logger->verticalScrollBar();
+    vscroll->setValue(vscroll->maximum());
 }
 
 void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
