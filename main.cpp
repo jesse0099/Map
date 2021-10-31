@@ -51,6 +51,8 @@ vector<Vertex> *vertexes;
 vector<Edge_tmp> *edges;
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
+QFont *font;
+QFont *mainWindowfont;
 QMainWindow *w;
 QMenu *file;
 QPushButton* btnCalcular;
@@ -74,6 +76,8 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
 
+    font = new QFont;
+    mainWindowfont = new QFont;
     btnClear = new QPushButton;
     btnCalcular = new QPushButton;
     txtMapInfo = new QTextEdit;
@@ -95,12 +99,25 @@ int main(int argc, char *argv[])
     selectFile = new QAction;
     calcDijsktra = new QAction;
 
+    //Fuentes
+    font->setPixelSize(13);
+    font->setFamily("Comic Sans");
+    font->setWeight(QFont::Bold);
+
+    mainWindowfont->setPixelSize(13);
+    mainWindowfont->setFamily("Comic Sans");
+    mainWindowfont->setWeight(QFont::Normal);
+
+
     //Seteando logger y boton de calculo
     graphWidget->logger = txtMapInfo;
     graphWidget->calc = btnCalcular;
 
     txtMapInfo->setFixedHeight(150);
     txtMapInfo->setReadOnly(true);
+    txtMapInfo->setTextColor(QColor(Qt::darkGray).darker(170));
+    txtMapInfo->setFont(*font);
+
 
     graphWidget->centerOn(0,0);
 
@@ -121,8 +138,10 @@ int main(int argc, char *argv[])
     file->addAction(selectFile);
 
     /*label*/
+    lblTrans->setFont(*font);
+    lblTrans->setStyleSheet("QLabel { color : gray; }");
     lblTrans->setText("Transporte: ");
-    lblTrans->setContentsMargins(0,0,8,10);
+    lblTrans->setContentsMargins(0,8,0,10);
 
     /*Combobox*/
     transportes->addItem(QIcon(":/Imgs/car_13260.ico"),"Carro");
@@ -162,6 +181,7 @@ int main(int argc, char *argv[])
     w->setMinimumHeight(800);
     w->show();
 
+    a.setFont(*mainWindowfont);
     return a.exec();
 }
 
