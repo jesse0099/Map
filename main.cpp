@@ -39,6 +39,7 @@
 #include <iterator>
 #include "qlabel.h"
 #include <QComboBox>
+#include <QScrollBar>
 
 
 using namespace std;
@@ -46,8 +47,8 @@ using namespace std;
 typedef pair<string, string> str_pair;
 typedef pair<int, string> w_pair;
 
-vector<Vertex> vertexes;
-vector<Edge_tmp> edges;
+vector<Vertex> *vertexes;
+vector<Edge_tmp> *edges;
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
 QMainWindow *w;
@@ -70,22 +71,26 @@ void on_btnClear_pressed();
 
 int main(int argc, char *argv[])
 {
-    //Carga de vertices desde archivo de texto
-    vector<Vertex> read_vertexes;
 
     QApplication a(argc, argv);
 
     btnClear = new QPushButton;
     btnCalcular = new QPushButton;
     txtMapInfo = new QTextEdit;
+
     /*Label y combo transportes*/
     transportes = new QComboBox;
     lblTrans = new QLabel;
-    /*----------------------*/
+
+    /*Layouts y ventanas */
     mapLayout = new QHBoxLayout;
     mainLayout = new QVBoxLayout;
     buttonsLayout = new QVBoxLayout;
     graphWidget = new GraphWidget;
+    centraWidget = new QWidget;
+    w = new QMainWindow;
+
+    /*Menues y acciones*/
     file = new QMenu;
     selectFile = new QAction;
     calcDijsktra = new QAction;
@@ -95,34 +100,30 @@ int main(int argc, char *argv[])
     graphWidget->calc = btnCalcular;
 
     txtMapInfo->setFixedHeight(150);
-
-
-    w = new QMainWindow;
-    centraWidget = new QWidget;
+    txtMapInfo->setReadOnly(true);
 
     graphWidget->centerOn(0,0);
-
 
     btnCalcular->setIcon(QIcon(":/Imgs/back_arrow_14447_.ico"));
     btnCalcular->setToolTip("Ruta más Corta");
     btnCalcular->setFixedHeight(50);
     btnCalcular->setFixedWidth(105);
 
-
     btnClear->setIcon(QIcon(":/Imgs/icons8-actualizaciones-disponibles-48.ico"));
     btnClear->setToolTip("Reiniciar Vista");
     btnClear->setFixedHeight(50);
     btnClear->setFixedWidth(105);
 
-
     selectFile->setIcon(QIcon(":/Imgs/Map_1135px_1195280_42272.ico"));
     selectFile->setText("Seleccionar Archivo (txt)");
+
     file = w->menuBar()->addMenu("Mapas");
     file->addAction(selectFile);
 
     /*label*/
     lblTrans->setText("Transporte: ");
     lblTrans->setContentsMargins(0,0,8,10);
+
     /*Combobox*/
     transportes->addItem(QIcon(":/Imgs/car_13260.ico"),"Carro");
     transportes->addItem(QIcon(":/Imgs/front-bus_icon-icons.com_72746.ico"),"Autobus");
@@ -131,17 +132,6 @@ int main(int argc, char *argv[])
 
     transportes->setFixedHeight(50);
     transportes->setFixedWidth(105);
-
-
-
-    //Signal - Slot SELECT
-    QObject::connect(selectFile, &QAction::triggered, file, on_actionSeleccionar_Mapa_triggered);
-
-    //Signal - Slot CALC
-    QObject::connect(btnCalcular,&QPushButton::clicked, w, on_btCalcular_pressed);
-
-    //Siganl - Slot CLEAR
-    QObject::connect(btnClear,&QPushButton::clicked, w, on_btnClear_pressed);
 
     buttonsLayout->setSpacing(0);
     buttonsLayout->addWidget(btnCalcular,0,Qt::AlignTop);
@@ -152,19 +142,27 @@ int main(int argc, char *argv[])
     mapLayout->addWidget(graphWidget);
     mapLayout->addLayout(buttonsLayout);
 
-
     mainLayout->addLayout(mapLayout);
     mainLayout->addWidget(txtMapInfo);
 
     centraWidget->setLayout(mainLayout);
+
+    //Signal - Slot SELECT
+    QObject::connect(selectFile, &QAction::triggered, file, on_actionSeleccionar_Mapa_triggered);
+
+    //Signal - Slot CALC
+    QObject::connect(btnCalcular,&QPushButton::clicked, w, on_btCalcular_pressed);
+
+    //Siganl - Slot CLEAR
+    QObject::connect(btnClear,&QPushButton::clicked, w, on_btnClear_pressed);
 
     w->setWindowTitle("PathFinder");
     w->setCentralWidget(centraWidget);
     w->setMinimumWidth(1000);
     w->setMinimumHeight(800);
     w->show();
-    return a.exec();
 
+    return a.exec();
 }
 
 Vertex build_vertex(QString data){
@@ -219,8 +217,8 @@ void on_actionSeleccionar_Mapa_triggered()
             GraphWidget::selectecNodesCount = 0 ;
         }
 
-        vertexes = vector<Vertex>();
-        edges = vector<Edge_tmp>();
+        vertexes = new  vector<Vertex>();
+        edges = new vector<Edge_tmp>();
 
         //bug
         QString filename = QFileDialog::getOpenFileName(w, "Open File");
@@ -247,14 +245,14 @@ void on_actionSeleccionar_Mapa_triggered()
                 if (!edgesCap)
                 {
                     Vertex newVertex = build_vertex(value);
-                    vertexes.push_back(newVertex);
+                    vertexes->push_back(newVertex);
                 }
                 else
                 {
                     if (value != "edges") {
                        Edge_tmp newEdge = Edge_tmp();
                        newEdge= newEdge.buildEdge(value);
-                       edges.push_back(newEdge);
+                       edges->push_back(newEdge);
                     }
                 }
 
@@ -264,8 +262,9 @@ void on_actionSeleccionar_Mapa_triggered()
             file.close();
 
             //Set vertex
-            graphWidget->set_vertexes(&vertexes);
-            graphWidget->set_edges(&edges);
+            graphWidget->set_vertexes(vertexes);
+            graphWidget->set_edges(edges);
+
             //Update Map
             graphWidget->update();
 
@@ -283,8 +282,9 @@ void on_btCalcular_pressed(){
         reset_selected_edges();
 
         int distanciaT;
-        int edge_counter = 0;
-        string literal_path ="Camino más corto: -> ";
+        int edges_path_idx = 0;
+        vector<string> literal_path_vector;
+        string literal_path;
         string org_vertex = (*GraphWidget::sourceNode).get_vertex()->get_tag();
         string dest_vertex = (*GraphWidget::destNode).get_vertex()->get_tag();
         vector<str_pair> edges_path;
@@ -318,10 +318,12 @@ void on_btCalcular_pressed(){
             edges_path.push_back(make_pair(path[j].second,path[j+1].second));
         }
 
-
+        //Inicializacion del vector con la direccion en palabras
+        literal_path_vector =  vector<string>(edges_path.size(),"");
 
         for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
             int* sd;
+            edges_path_idx = 0;
             for(auto& x: edges_path){
                 if(x.first == (*i)->sourceNode()->get_vertex()->get_tag() &&
                         x.second == (*i)->destNode()->get_vertex()->get_tag()){
@@ -359,10 +361,11 @@ void on_btCalcular_pressed(){
                             coord = "Oeste";
                     }
 
-                    edge_counter == edges_path.size() ? literal_path += " "+from + " "+to_string((*i)->peso)+" km "+ coord +" hacia " + to + " " : literal_path += " "+from + " "+to_string((*i)->peso)+" km "+ coord + " hacia " + to + ", " ;
+                    literal_path = " Desde "+from + ", "+to_string((*i)->peso)+" (km) al "+ coord + " hacia " + to + ". " ;
+                    literal_path_vector.at(edges_path_idx) = literal_path;
 
-                    edge_counter++;
                 }
+                edges_path_idx++;
             }
 
             //Arista descartada
@@ -400,12 +403,19 @@ void on_btCalcular_pressed(){
             }
         }
 
+        //Armando ruta en palabras
+        literal_path = "Camino más corto: -> ";
+        for(auto &path : literal_path_vector){
+            literal_path += path;
+        }
+        literal_path += "\n";
+
         /* Mostrar el valor de la velocidad en consola */
         if(distanciaT != 0){
-             GraphWidget::predictTime(transportes->currentText().toStdString(),distanciaT);
+             GraphWidget::predictTime(transportes->currentText().toStdString(), distanciaT);
         }
 
-        txtMapInfo->setText(QString::fromStdString(txtMapInfo->toPlainText().toStdString() + literal_path));
+        GraphWidget::log(literal_path);
     }
 }
 
