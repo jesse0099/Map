@@ -8,6 +8,7 @@
         <file>front-bus_icon-icons.com_72746.ico</file>
         <file>icons8-actualizaciones-disponibles-48.ico</file>
         <file>pedestrianwalking_89238.ico</file>
+        <file>rotate.ico</file>
     </qresource>
     <qresource prefix="/Maps">
         <file>TestFile.txt</file>

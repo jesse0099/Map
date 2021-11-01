@@ -48,6 +48,7 @@ typedef pair<string, string> str_pair;
 typedef pair<int, string> w_pair;
 
 int* sd;
+int rotation_angle = 0;
 vector<Vertex> *vertexes;
 vector<Edge_tmp> *edges;
 QTextEdit *txtMapInfo;
@@ -58,6 +59,7 @@ QMainWindow *w;
 QMenu *file;
 QPushButton* btnCalcular;
 QPushButton* btnClear;
+QPushButton* btnRotate;
 QLabel* lblTrans;
 QComboBox *transportes;
 QAction *selectFile;
@@ -71,6 +73,7 @@ GraphWidget* graphWidget;
 void on_actionSeleccionar_Mapa_triggered();
 void on_btCalcular_pressed();
 void on_btnClear_pressed();
+void on_btnRotate_pressed();
 
 int main(int argc, char *argv[])
 {
@@ -81,6 +84,7 @@ int main(int argc, char *argv[])
     mainWindowfont = new QFont;
     btnClear = new QPushButton;
     btnCalcular = new QPushButton;
+    btnRotate = new QPushButton;
     txtMapInfo = new QTextEdit;
 
     /*Label y combo transportes*/
@@ -132,6 +136,11 @@ int main(int argc, char *argv[])
     btnClear->setFixedHeight(50);
     btnClear->setFixedWidth(105);
 
+    btnRotate->setIcon(QIcon(":/Imgs/rotate.ico"));
+    btnRotate->setToolTip("Rotar Vista (90)");
+    btnRotate->setFixedHeight(50);
+    btnRotate->setFixedWidth(105);
+
     selectFile->setIcon(QIcon(":/Imgs/Map_1135px_1195280_42272.ico"));
     selectFile->setText("Seleccionar Archivo (txt)");
 
@@ -156,6 +165,7 @@ int main(int argc, char *argv[])
     buttonsLayout->setSpacing(0);
     buttonsLayout->addWidget(btnCalcular,0,Qt::AlignTop);
     buttonsLayout->addWidget(btnClear,0,Qt::AlignTop);
+    buttonsLayout->addWidget(btnRotate,0,Qt::AlignTop);
     buttonsLayout->addWidget(lblTrans,0,Qt::AlignTop);
     buttonsLayout->addWidget(transportes,15,Qt::AlignTop);
 
@@ -173,8 +183,11 @@ int main(int argc, char *argv[])
     //Signal - Slot CALC
     QObject::connect(btnCalcular,&QPushButton::clicked, w, on_btCalcular_pressed);
 
-    //Siganl - Slot CLEAR
+    //Signal - Slot CLEAR
     QObject::connect(btnClear,&QPushButton::clicked, w, on_btnClear_pressed);
+
+    //Signal - Slot ROTATE
+    QObject::connect(btnRotate,&QPushButton::clicked,w,on_btnRotate_pressed);
 
     w->setWindowTitle("PathFinder");
     w->setCentralWidget(centraWidget);
@@ -484,4 +497,8 @@ void on_btnClear_pressed(){
         GraphWidget::destNode = NULL;
         GraphWidget::selectecNodesCount = 0 ;
     }
+}
+
+void on_btnRotate_pressed(){
+    graphWidget->rotate(90);
 }
