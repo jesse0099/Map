@@ -40,6 +40,7 @@ public:
     vector<Node*>* get_nodes();
     vector<Vertex>* get_vertexes();
     vector<Edge*>* get_edges();
+    QGraphicsScene* get_scene();
     Graph* get_graph();
     /*void itemMoved();*/
 

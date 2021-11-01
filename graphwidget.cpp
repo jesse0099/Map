@@ -41,6 +41,7 @@ GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->setSceneRect(0, 0, 3000, 2000);
     scene->focusOnTouch();
+
     setScene(scene);
     setCacheMode(CacheBackground);
     setViewportUpdateMode(BoundingRectViewportUpdate);
@@ -48,6 +49,7 @@ GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     setTransformationAnchor(AnchorUnderMouse);
     scale(qreal(0.8), qreal(0.8));
     setMinimumSize(400, 600);
+    setDragMode(QGraphicsView::ScrollHandDrag);
 
 }
 
@@ -244,4 +246,6 @@ vector<Edge*>* GraphWidget::get_edges(){
     return edges;
 }
 
-
+QGraphicsScene* GraphWidget::get_scene(){
+    return scene;
+}

@@ -47,6 +47,7 @@ using namespace std;
 typedef pair<string, string> str_pair;
 typedef pair<int, string> w_pair;
 
+int* sd;
 vector<Vertex> *vertexes;
 vector<Edge_tmp> *edges;
 QTextEdit *txtMapInfo;
@@ -224,6 +225,132 @@ void reset_selected_edges(){
     }
 }
 
+unordered_map<string, vector<vector<wt_pair>>> possible_paths(string org_vertex, string dest_vertex){
+    Graph* local = graphWidget->get_graph();
+    //Calculo de posibles caminos
+    (*local).get_all_paths(org_vertex,dest_vertex);
+    //Posibles caminos desde el vertice origen
+    return (*local).get_vertexes_list()[(*local).vertex_index(org_vertex)].get_possible_paths();
+}
+
+vector<str_pair> possible_paths_key_pairs(unordered_map<string, vector<vector<wt_pair>>> p_possible_paths, string dest_vertex){
+    vector<str_pair> edges_possible_paths;
+    //Caminos posibles (Pares de llaves)
+    for(vector<vector<pair<int,string>>>::iterator x = p_possible_paths.at(dest_vertex).begin() ;x < p_possible_paths.at(dest_vertex).end(); x++){
+        for(vector<pair<int,string>>::iterator i = x->begin(); i < x->end()-1; i++){
+            if((*i).second != "" && (*(i+1)).second != "")
+                edges_possible_paths.push_back(make_pair((*i).second,(*(i+1)).second));
+        }
+    }
+    return edges_possible_paths;
+}
+
+vector<wt_pair> shortest_path(string org_vertex, string dest_vertex){
+    Graph* local = graphWidget->get_graph();
+    return (*local).hash_shortest_path(org_vertex, dest_vertex);
+}
+
+vector<str_pair> shortest_path_key_pairs(vector<wt_pair> p_shortest_path){
+    vector<str_pair> edges_path;
+    //Pares de Llaves para  Camino Mas corto
+    for(unsigned int j = 1; j < (p_shortest_path.size()-1); j++){
+        edges_path.push_back(make_pair(p_shortest_path[j].second,p_shortest_path[j+1].second));
+    }
+    return edges_path;
+}
+
+string coordinate_translation(Node* sourceNode, Node* destNode){
+    string coord;
+    auto sinalpha = atan2((sourceNode->pos().y() - destNode->pos().y()), (destNode->pos().x() - sourceNode->pos().x())) * (180.0 / M_PI);
+    //Entre 1 y 179, pasando por 90 NORTE
+    if(sinalpha > 0 && sinalpha < 180 ){
+        if(sinalpha == 90)
+            coord = "Norte";
+        if(sinalpha < 90)
+            coord = "Noreste";
+        if(sinalpha > 90)
+            coord = "Noroeste";
+
+    }else if(sinalpha < 0){
+        if(sinalpha == -90)
+            coord = "Sur";
+         if(sinalpha > -90 )
+             coord = "Sureste";
+         if(sinalpha < -90)
+             coord = "Suroeste";
+    }else{
+        if(sinalpha == 0)
+            coord = "Este";
+        else
+            coord = "Oeste";
+    }
+    return coord;
+}
+
+void shortest_path_representation(vector<str_pair> edges_path, vector<string> *literal_path_vector){
+    string from, to, coord,literal_path;
+    int edges_path_idx = 0;
+    //Marcado visual de camino mas corto
+    for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
+        edges_path_idx = 0;
+        for(auto &x: edges_path){
+            if(x.first == (*i)->sourceNode()->get_vertex()->get_tag() &&
+                    x.second == (*i)->destNode()->get_vertex()->get_tag()){
+                sd = new int(1);
+                (*i)->set_sd(sd);
+                (*i)->setZValue(1);
+                (*i)->hide();
+                (*i)->show();
+
+                from =(*i)->sourceNode()->get_vertex()->get_tag();
+                to = (*i)->destNode()->get_vertex()->get_tag();
+                coord = coordinate_translation((*i)->sourceNode(),(*i)->destNode());
+
+                literal_path = " Desde "+from + ", "+to_string((*i)->peso)+" (km) al "+ coord + " hacia " + to + ". " ;
+                literal_path_vector->at(edges_path_idx) = literal_path;
+
+            }
+            edges_path_idx++;
+        }
+
+        //Arista descartada
+        if((*(*i)->get_sd()) == 0){
+            sd = new int(2);
+            (*i)->set_sd(sd);
+            (*i)->setZValue(-1);
+            (*i)->hide();
+            (*i)->show();
+        }
+
+        //Arista perteneciente al camino mas corto
+        if((*(*i)->get_sd()) == 1){
+            //Arista paralela bidireccional
+            for(auto edgs : (*i)->destNode()->edges()){
+                if(edgs->destNode()->get_vertex()->get_tag() == (*i)->sourceNode()->get_vertex()->get_tag())
+                     edgs->hide();
+            }
+
+        }
+    }
+}
+
+void possible_paths_representation(vector<str_pair> edges_possible_paths){
+    //Posible camino
+    for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
+        for(auto& x: edges_possible_paths){
+            if(x.first == (*i)->sourceNode()->get_vertex()->get_tag() &&
+                    x.second == (*i)->destNode()->get_vertex()->get_tag() && (*(*i)->get_sd()) != 1){
+                sd = new int(0);
+                (*i)->setZValue(1);
+                (*i)->set_sd(sd);
+                (*i)->hide();
+                (*i)->show();
+            }
+        }
+    }
+
+}
+
 void on_actionSeleccionar_Mapa_triggered()
 {
     try {
@@ -302,139 +429,48 @@ void on_btCalcular_pressed(){
         reset_selected_edges();
 
         int distanciaT;
-        int edges_path_idx = 0;
-        vector<string> literal_path_vector;
         string literal_path;
         string org_vertex = (*GraphWidget::sourceNode).get_vertex()->get_tag();
         string dest_vertex = (*GraphWidget::destNode).get_vertex()->get_tag();
+        vector<wt_pair> path;
         vector<str_pair> edges_path;
         vector<str_pair> edges_possible_paths;
-        vector<wt_pair> path;
-        Graph* local = graphWidget->get_graph();
+        vector<string> literal_path_vector;
 
         //Calculo de camino mas corto
-        path = (*local).hash_shortest_path(org_vertex, dest_vertex);
+        path = shortest_path(org_vertex, dest_vertex);
 
-        //Calculo de posibles caminos
-        (*local).get_all_paths(org_vertex,dest_vertex);
+        //Posibles Caminos (Pares de llaves)
+        edges_possible_paths = possible_paths_key_pairs( possible_paths(org_vertex, dest_vertex), dest_vertex);
 
-        //Posibles caminos desde el vertice origen
-        auto possible_paths = (*local).get_vertexes_list()[(*local).vertex_index(org_vertex)].get_possible_paths();
+        //Camino mas corto (Pares de llaves)
+        edges_path = shortest_path_key_pairs(path);
 
-        //Caminos posibles (Pares de llaves)
-        for(vector<vector<pair<int,string>>>::iterator x = possible_paths.at(dest_vertex).begin() ;x < possible_paths.at(dest_vertex).end(); x++){
-            for(vector<pair<int,string>>::iterator i = x->begin(); i < x->end()-1; i++){
-                if((*i).second != "" && (*(i+1)).second != "")
-                    edges_possible_paths.push_back(make_pair((*i).second,(*(i+1)).second));
-            }
-        }
-
-        /* Agarrar la  distancia total */
-
+        //Distancia total del recorrido
         distanciaT = path[0].first;
-
-        //Pares de Llaves para  Camino Mas corto
-        for(unsigned int j = 1; j < (path.size()-1); j++){
-            edges_path.push_back(make_pair(path[j].second,path[j+1].second));
-        }
 
         //Inicializacion del vector con la direccion en palabras
         literal_path_vector =  vector<string>(edges_path.size(),"");
 
-        for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
-            int* sd;
-            edges_path_idx = 0;
-            for(auto& x: edges_path){
-                if(x.first == (*i)->sourceNode()->get_vertex()->get_tag() &&
-                        x.second == (*i)->destNode()->get_vertex()->get_tag()){
-                    sd = new int(1);
-                    (*i)->set_sd(sd);
-                    (*i)->setZValue(1);
-                    (*i)->hide();
-                    (*i)->show();
-                    string from, to, coord;
+        //Marcado visual de camino mas corto
+        shortest_path_representation(edges_path, &literal_path_vector);
 
-                    auto sinalpha = atan2(((*i)->sourceNode()->pos().y() - (*i)->destNode()->pos().y()), ((*i)->destNode()->pos().x() - (*i)->sourceNode()->pos().x())) * (180.0 / M_PI);
-                    from = (*i)->sourceNode()->get_vertex()->get_tag();
-                    to = (*i)->destNode()->get_vertex()->get_tag();
+        //Marcado visual de los posibles caminos
+        possible_paths_representation(edges_possible_paths);
 
-                    //Entre 1 y 179, pasando por 90 NORTE
-                    if(sinalpha > 0 && sinalpha < 180 ){
-                        if(sinalpha == 90)
-                            coord = "Norte";
-                        if(sinalpha < 90)
-                            coord = "Noreste";
-                        if(sinalpha > 90)
-                            coord = "Noroeste";
-
-                    }else if(sinalpha < 0){
-                        if(sinalpha == -90)
-                            coord = "Sur";
-                         if(sinalpha > -90 )
-                             coord = "Sureste";
-                         if(sinalpha < -90)
-                             coord = "Suroeste";
-                    }else{
-                        if(sinalpha == 0)
-                            coord = "Este";
-                        else
-                            coord = "Oeste";
-                    }
-
-                    literal_path = " Desde "+from + ", "+to_string((*i)->peso)+" (km) al "+ coord + " hacia " + to + ". " ;
-                    literal_path_vector.at(edges_path_idx) = literal_path;
-
-                }
-                edges_path_idx++;
-            }
-
-            //Arista descartada
-            if((*(*i)->get_sd()) == 0){
-                sd = new int(2);
-                (*i)->set_sd(sd);
-                (*i)->setZValue(-1);
-                (*i)->hide();
-                (*i)->show();
-            }
-
-            //Arista perteneciente al camino mas corto
-            if((*(*i)->get_sd()) == 1){
-
-                for(auto edgs : (*i)->destNode()->edges()){
-                    if(edgs->destNode()->get_vertex()->get_tag() == (*i)->sourceNode()->get_vertex()->get_tag())
-                         edgs->hide();
-                }
-
-            }
-        }
-
-        //Posible camino
-        for(vector<Edge*>::iterator i = graphWidget->get_edges()->begin(); i< graphWidget->get_edges()->end(); i++){
-            for(auto& x: edges_possible_paths){
-                int* sd;
-                if(x.first == (*i)->sourceNode()->get_vertex()->get_tag() &&
-                        x.second == (*i)->destNode()->get_vertex()->get_tag() && (*(*i)->get_sd()) != 1){
-                    sd = new int(0);
-                    (*i)->setZValue(1);
-                    (*i)->set_sd(sd);
-                    (*i)->hide();
-                    (*i)->show();
-                }
-            }
-        }
-
-        //Armando ruta en palabras
+        //Armando direccion del camino mas corto
         literal_path = "Camino más corto: -> ";
         for(auto &path : literal_path_vector){
             literal_path += path;
         }
         literal_path += "\n";
 
-        /* Mostrar el valor de la velocidad en consola */
+        // Mostrar el valor de tiempo estimado en la consola
         if(distanciaT != 0){
              GraphWidget::predictTime(transportes->currentText().toStdString(), distanciaT);
         }
 
+        //Mostrar direccion del camino mas corto
         GraphWidget::log(literal_path);
     }
 }
