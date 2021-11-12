@@ -20,6 +20,7 @@ Node* GraphWidget::sourceNode = NULL;
 Node* GraphWidget::destNode = NULL;
 QTextEdit* GraphWidget::logger = NULL;
 QPushButton* GraphWidget::calc = NULL;
+QString GraphWidget::backgroundURL = "";
 
 GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     : QGraphicsView(parent)
@@ -41,6 +42,7 @@ GraphWidget::GraphWidget(QWidget *parent, vector<Vertex>* p_vertexes)
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->setSceneRect(0, 0, 3000, 2000);
     scene->focusOnTouch();
+
 
     setScene(scene);
     setCacheMode(CacheBackground);
@@ -111,6 +113,7 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     if (bottomShadow.intersects(rect) || bottomShadow.contains(rect))
         painter->fillRect(bottomShadow, Qt::darkGray);
 
+
     // Fill
     QLinearGradient gradient(sceneRect.topLeft(), sceneRect.bottomRight());
     gradient.setColorAt(0, Qt::white);
@@ -125,6 +128,14 @@ void GraphWidget::drawBackground(QPainter *painter, const QRectF &rect)
     painter->setFont(font);
     painter->setPen(Qt::lightGray);
     painter->setPen(Qt::black);
+
+    //Set Background
+    if(backgroundURL != ""){
+        QString imgUrl = backgroundURL;
+        auto pic = QPixmap(imgUrl);
+        auto imgRect = QRectF(pic.rect());
+        painter->drawPixmap(sceneRect,pic,imgRect);
+    }
 
 }
 

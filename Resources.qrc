@@ -10,7 +10,5 @@
         <file>pedestrianwalking_89238.ico</file>
         <file>rotate.ico</file>
     </qresource>
-    <qresource prefix="/Maps">
-        <file>TestFile.txt</file>
-    </qresource>
+    <qresource prefix="/Maps"/>
 </RCC>

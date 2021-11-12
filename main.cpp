@@ -50,6 +50,7 @@ typedef pair<int, string> w_pair;
 int* sd;
 int rotation_angle = 0;
 vector<Vertex> *vertexes;
+vector<QString> *layers;
 vector<Edge_tmp> *edges;
 QTextEdit *txtMapInfo;
 QWidget *centraWidget;
@@ -61,7 +62,9 @@ QPushButton* btnCalcular;
 QPushButton* btnClear;
 QPushButton* btnRotate;
 QLabel* lblTrans;
+QLabel *lblLayers;
 QComboBox *transportes;
+QComboBox *comboLayer;
 QAction *selectFile;
 QAction *calcDijsktra;
 QVBoxLayout* mainLayout;
@@ -74,11 +77,15 @@ void on_actionSeleccionar_Mapa_triggered();
 void on_btCalcular_pressed();
 void on_btnClear_pressed();
 void on_btnRotate_pressed();
+void on_current_text_changed();
 
 int main(int argc, char *argv[])
 {
 
     QApplication a(argc, argv);
+
+    //Layers
+    layers = new vector<QString>(2,"");
 
     font = new QFont;
     mainWindowfont = new QFont;
@@ -88,8 +95,10 @@ int main(int argc, char *argv[])
     txtMapInfo = new QTextEdit;
 
     /*Label y combo transportes*/
+    comboLayer = new QComboBox;
     transportes = new QComboBox;
     lblTrans = new QLabel;
+    lblLayers = new QLabel;
 
     /*Layouts y ventanas */
     mapLayout = new QHBoxLayout;
@@ -153,6 +162,11 @@ int main(int argc, char *argv[])
     lblTrans->setText("Transporte: ");
     lblTrans->setContentsMargins(0,8,0,10);
 
+    lblLayers->setFont(*font);
+    lblLayers->setStyleSheet("QLabel { color : gray; }");
+    lblLayers->setText("Capas: ");
+    lblLayers->setContentsMargins(0,8,0,10);
+
     /*Combobox*/
     transportes->addItem(QIcon(":/Imgs/car_13260.ico"),"Carro");
     transportes->addItem(QIcon(":/Imgs/front-bus_icon-icons.com_72746.ico"),"Autobus");
@@ -162,10 +176,20 @@ int main(int argc, char *argv[])
     transportes->setFixedHeight(50);
     transportes->setFixedWidth(105);
 
+    //Layers Combo
+    comboLayer->addItem("Político");
+    comboLayer->addItem("Satélital");
+
+    comboLayer->setFixedHeight(50);
+    comboLayer->setFixedWidth(105);
+
+
     buttonsLayout->setSpacing(0);
     buttonsLayout->addWidget(btnCalcular,0,Qt::AlignTop);
     buttonsLayout->addWidget(btnClear,0,Qt::AlignTop);
     buttonsLayout->addWidget(btnRotate,0,Qt::AlignTop);
+    buttonsLayout->addWidget(lblLayers,0,Qt::AlignTop);
+    buttonsLayout->addWidget(comboLayer,0,Qt::AlignTop);
     buttonsLayout->addWidget(lblTrans,0,Qt::AlignTop);
     buttonsLayout->addWidget(transportes,15,Qt::AlignTop);
 
@@ -188,6 +212,9 @@ int main(int argc, char *argv[])
 
     //Signal - Slot ROTATE
     QObject::connect(btnRotate,&QPushButton::clicked,w,on_btnRotate_pressed);
+
+    //Signal - Slot LAYER
+    QObject::connect(comboLayer,&QComboBox::currentTextChanged,w,on_current_text_changed);
 
     w->setWindowTitle("PathFinder");
     w->setCentralWidget(centraWidget);
@@ -367,6 +394,8 @@ void possible_paths_representation(vector<str_pair> edges_possible_paths){
 void on_actionSeleccionar_Mapa_triggered()
 {
     try {
+        int layer_idx = 0;
+
         reset_selected_edges();
 
         if(GraphWidget::sourceNode != NULL && GraphWidget::destNode != NULL){
@@ -392,16 +421,19 @@ void on_actionSeleccionar_Mapa_triggered()
             QTextStream in (&file);
             QString final = "";
             bool edgesCap = false;
+            bool mapCap = false;
 
             while (!in.atEnd())
             {
                 QString value = in.readLine();
 
                 if (value == "edges")
-                {
                     edgesCap = true;
-                }
 
+                if(value == "background")
+                    mapCap = true;
+
+                //Vertices
                 if (!edgesCap)
                 {
                     Vertex newVertex = build_vertex(value);
@@ -409,10 +441,17 @@ void on_actionSeleccionar_Mapa_triggered()
                 }
                 else
                 {
-                    if (value != "edges") {
+                    //Aristas
+                    if (value != "edges" && !mapCap) {
                        Edge_tmp newEdge = Edge_tmp();
                        newEdge= newEdge.buildEdge(value);
                        edges->push_back(newEdge);
+                    }
+                    //background
+                    if(value != "background" && mapCap){
+                        //Carga
+                        layers->at(layer_idx) = value;
+                        layer_idx++;
                     }
                 }
 
@@ -425,8 +464,14 @@ void on_actionSeleccionar_Mapa_triggered()
             graphWidget->set_vertexes(vertexes);
             graphWidget->set_edges(edges);
 
+            //Set Background
+            graphWidget->backgroundURL = layers->at(0);
+
             //Update Map
             graphWidget->update();
+
+            graphWidget->hide();
+            graphWidget->show();
 
         }
     }  catch (exception &e) {
@@ -501,4 +546,16 @@ void on_btnClear_pressed(){
 
 void on_btnRotate_pressed(){
     graphWidget->rotate(90);
+}
+
+void on_current_text_changed(){
+    if(comboLayer->currentText() == "Político")
+        graphWidget->backgroundURL = layers->at(0);
+    else
+        graphWidget->backgroundURL = layers->at(1);
+
+    graphWidget->update();
+    graphWidget->hide();
+    graphWidget->show();
+
 }

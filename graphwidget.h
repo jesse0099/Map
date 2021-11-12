@@ -23,6 +23,7 @@ public:
     static Node* destNode;
     static QTextEdit* logger;
     static QPushButton* calc;
+    static QString backgroundURL;
 
     static void check_node_selection(Node* selectedNode);
     static void log(string message);
