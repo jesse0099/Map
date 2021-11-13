@@ -1,11 +1,11 @@
-Parque Mora y Cañas,650,960
-Cruz Roja,490,970
-Pollo Porteño,370,1170
-PayLess ShoeSource,1400,920
-Clínica San Rafael,720,1590
-Tribunales de Justicia,730,1200
-Marisquería La Ostra,370,1610
-Universidad Técnica Nacional,1400,1510
+Parque Mora y Cañas,650,1038
+Cruz Roja,490,1041
+Pollo Porteño,370,1265
+PayLess ShoeSource,1400,990
+Clínica San Rafael,725,1680
+Tribunales de Justicia,730,1260
+Marisquería La Ostra,375,1700
+Universidad Técnica Nacional,1400,1600
 edges
 Pollo Porteño,Marisquería La Ostra,1,true,c.13
 Clínica San Rafael,Universidad Técnica Nacional,1,true, Av. 4
@@ -15,5 +15,5 @@ Parque Mora y Cañas,Cruz Roja,1,true,Av .1
 Marisquería La Ostra,Clínica San Rafael,1,true,Av .4
 Clínica San Rafael,Tribunales de Justicia,1,true,C. 9
 background
-E:/Map/maparenaVacio.jpg
+E:/Map/maparenaAtlas.jpg
 E:/Map/maparenasSatelite.jpg
